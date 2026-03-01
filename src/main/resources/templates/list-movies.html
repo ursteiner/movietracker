@@ -20,8 +20,8 @@
                 <td th:text="${movie.name}"></td>
                 <td th:text="${#dates.format(movie.dateWatched, 'yyyy-MM-dd')}"></td>
                 <td>
-                    <a th:href="@{|/edit/${movie.id}|}" class="btn btn-success">✏️</a>
-                    <a th:href="@{|/delete/${movie.id}|}" class="btn btn-danger">🗑️</a>
+                    <a th:href="@{|/edit/${movie.id}|}" class="btn btn-dark">✏️</a>
+                    <a th:href="@{|/delete/${movie.id}|}" class="btn btn-dark">🗑️</a>
                 </td>
             </tr>
         </table>

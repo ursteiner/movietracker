@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class MovieController {
@@ -36,9 +37,7 @@ public class MovieController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showUpdateForm(
-
-            @PathVariable("id") long id, Model model) {
+    public String showUpdateForm(@PathVariable("id") long id, Model model) {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid movie Id:" + id));
         model.addAttribute("movie", movie);
@@ -66,5 +65,13 @@ public class MovieController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid item Id:" + id));
         movieRepository.delete(movie);
         return "redirect:/";
+    }
+
+    @GetMapping("/search")
+    public String showSearchResults(@RequestParam String searchName, Model model) {
+        model.addAttribute("movies", movieRepository.findByNameStartingWithIgnoreCaseOrderByDateWatchedDesc(searchName));
+        model.addAttribute("activePage", "list");
+        model.addAttribute("searchName", "");
+        return "list-movies";
     }
 }
