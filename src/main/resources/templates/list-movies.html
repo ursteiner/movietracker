@@ -6,7 +6,7 @@
     <link th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}" rel="stylesheet" />
 </head>
 <body>
-    <div th:replace="fragments/header"></div>
+    <div th:replace="~{fragments/header}"></div>
 
     <div class="container">
         <h1>Movie List</h1>
@@ -20,11 +20,11 @@
                 <td th:text="${movie.name}"></td>
                 <td th:text="${#dates.format(movie.dateWatched, 'yyyy-MM-dd')}"></td>
                 <td>
-                    <a th:href="@{|/edit/${movie.id}|}">✏️ Edit</a>
-                    <a th:href="@{|/delete/${movie.id}|}">🗑️ Delete</a>
+                    <a th:href="@{|/edit/${movie.id}|}" class="btn btn-success">✏️</a>
+                    <a th:href="@{|/delete/${movie.id}|}" class="btn btn-danger">🗑️</a>
                 </td>
             </tr>
         </table>
-        <div class="container"></div>
+    </div>
 </body>
 </html>
