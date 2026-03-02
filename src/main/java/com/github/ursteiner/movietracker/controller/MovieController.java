@@ -3,7 +3,6 @@ package com.github.ursteiner.movietracker.controller;
 import com.github.ursteiner.movietracker.model.Movie;
 import com.github.ursteiner.movietracker.repository.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,9 +18,16 @@ public class MovieController {
 
     @GetMapping("/")
     public String listMovies(Model model) {
-        model.addAttribute("movies", movieRepository.findAll(Sort.by(Sort.Direction.DESC, "dateWatched")));
+        model.addAttribute("movies", movieRepository.findByInWatchlistFalseOrderByDateWatchedDesc());
         model.addAttribute("activePage", "list");
         return "list-movies";
+    }
+
+    @GetMapping("/watchlist")
+    public String listWatchlistMovies(Model model) {
+        model.addAttribute("watchlistMovies", movieRepository.findByInWatchlistTrueOrderByNameAsc());
+        model.addAttribute("activePage", "watchlist");
+        return "list-watchlist-movies";
     }
 
     @GetMapping("/add")
@@ -37,10 +43,11 @@ public class MovieController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showUpdateForm(@PathVariable("id") long id, Model model) {
+    public String showUpdateForm(@PathVariable("id") long id, @RequestParam(required = false) String returnUrl, Model model) {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid movie Id:" + id));
         model.addAttribute("movie", movie);
+        model.addAttribute("returnUrl", returnUrl);
         return "update-movie";
     }
 

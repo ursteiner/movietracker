@@ -15,6 +15,10 @@
             <input class="form-control" type="text" id="nameInput" th:field="*{name}"/>
             <label for="dateWatchedInput" class="form-label">Date watched:</label>
             <input class="form-control" type="date" id="dateWatchedInput" th:field="*{dateWatched}"/>
+            <label for="streamingUrlInput" class="form-label">Streaming URL:</label>
+            <input class="form-control" type="text" id="streamingUrlInput" th:field="*{streamingUrl}"/>
+            <label for="inWatchlistInput" class="form-check-label">in Watchlist:</label>
+            <input class="form-check-input" type="checkbox" id="inWatchlistInput" th:field="*{inWatchlist}"/>
             <br/>
             <br/>
             <a th:href="@{/}" class="btn btn-primary">Back to List</a>

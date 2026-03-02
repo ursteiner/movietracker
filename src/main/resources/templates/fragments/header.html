@@ -19,6 +19,9 @@
                         <a th:class="'nav-link'+${activePage == 'list' ? ' active' : ''}" th:href="@{/}" aria-current="page">Movies</a>
                     </li>
                     <li class="nav-item">
+                        <a th:class="'nav-link'+${activePage == 'watchlist' ? ' active' : ''}" th:href="@{/watchlist}">Watchlist</a>
+                    </li>
+                    <li class="nav-item">
                         <a th:class="'nav-link'+${activePage == 'add' ? ' active' : ''}" th:href="@{/add}">Add Movie</a>
                     </li>
                 </ul>

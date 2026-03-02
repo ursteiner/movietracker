@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface MovieRepository extends JpaRepository<Movie, Long> {
     List<Movie> findByNameStartingWithIgnoreCaseOrderByDateWatchedDesc(String name);
+    List<Movie> findByInWatchlistFalseOrderByDateWatchedDesc();
+    List<Movie> findByInWatchlistTrueOrderByNameAsc();
+
 }

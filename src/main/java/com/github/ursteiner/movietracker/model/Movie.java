@@ -25,5 +25,8 @@ public class Movie {
     private String name;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateWatched;
+    private String streamingUrl;
+    private Boolean inWatchlist;
 
 }
+
