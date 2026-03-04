@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>🎬 MovieTracker</title>
+    <link th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}" rel="stylesheet"/>
+</head>
+<body>
+<th:block th:fragment="movie-table (movies, showDateWatched, showStreamingUrl, returnUrl)">
+    <table class="table">
+        <tr>
+            <th>Name</th>
+            <th th:if="${showDateWatched}">Date watched</th>
+            <th th:if="${showStreamingUrl}">Streaming URL</th>
+            <th>Actions</th>
+        </tr>
+        <tr th:each="movie : ${movies}">
+            <td th:text="${movie.name}"></td>
+            <td th:if="${showDateWatched}" th:text="${#dates.format(movie.dateWatched, 'yyyy-MM-dd')}"></td>
+            <td th:if="${showStreamingUrl}">
+                <a th:href="${movie.streamingUrl}" th:text="${movie.streamingUrl}" target="_blank"></a>
+            </td>
+            <td>
+                <a th:href="@{'/edit/' + ${movie.id} + '?returnUrl=' + ${returnUrl}}" class="btn btn-dark">✏️</a>
+                <a th:href="@{|/delete/${movie.id}|}" class="btn btn-dark">🗑️</a>
+            </td>
+        </tr>
+    </table>
+</th:block>
+</body>
+</html>

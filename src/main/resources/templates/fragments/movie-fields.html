@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>🎬 MovieTracker</title>
+    <link th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}" rel="stylesheet"/>
+</head>
+<body>
+<div class="mb-3">
+    <label for="nameInput" class="form-label">Name:</label>
+    <input class="form-control" type="text" id="nameInput" th:field="*{name}"/>
+</div>
+<div class="mb-3">
+    <label for="dateWatchedInput" class="form-label">Date watched:</label>
+    <input class="form-control" type="date" id="dateWatchedInput" th:field="*{dateWatched}"/>
+</div>
+<div class="mb-3">
+    <label for="streamingUrlInput" class="form-label">Streaming URL:</label>
+    <input class="form-control" type="text" id="streamingUrlInput" th:field="*{streamingUrl}"/>
+</div>
+<div class="mb-3">
+    <input class="form-check-input" type="checkbox" id="inWatchlistInput" th:field="*{inWatchlist}"/>
+    <label for="inWatchlistInput" class="form-check-label">in Watchlist</label>
+</div>
+<br/>
+<br/>
+</body>
+</html>
