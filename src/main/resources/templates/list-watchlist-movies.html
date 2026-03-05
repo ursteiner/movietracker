@@ -9,7 +9,7 @@
 <div th:replace="~{fragments/header}"></div>
 
 <div class="container">
-    <h2 th:text="'Movie Watchlist (' + (${watchlistMovies} == null ? 0 : ${watchlistMovies.size()}) + ')'"></h2>
+    <h2>Movie Watchlist <span class="badge text-bg-secondary opacity-50" th:text="(${watchlistMovies} == null ? 0 : ${watchlistMovies.size()})"></span></h2>
     <div th:replace="fragments/movie-table :: movie-table(${watchlistMovies}, false, true, '/watchlist')">
     </div>
 </div>
