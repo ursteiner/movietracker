@@ -9,7 +9,7 @@
     <div th:replace="~{fragments/header}"></div>
 
     <div class="container">
-        <h1>Add New Movie</h1>
+        <h2>Add New Movie</h2>
         <form th:action="@{/add}" th:object="${movie}" method="post">
             <div th:replace="~{fragments/movie-fields}"></div>
             <a th:href="@{/}" class="btn btn-primary">Back to List</a>

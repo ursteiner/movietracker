@@ -9,7 +9,7 @@
 <div th:replace="~{fragments/header}"></div>
 
 <div class="container">
-    <h1>Delete Movie</h1>
+    <h2>Delete Movie</h2>
     <form th:action="@{|/delete/${movie.id}|}" th:object="${movie}" method="post">
         <label>Name:</label>
         <label th:text="*{name}"></label>
