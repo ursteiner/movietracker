@@ -6,16 +6,14 @@ A simple Spring Boot web application to manage and track movies you have watched
 
 ## Overview
 
-Movietracker is a user-friendly application that allows you to:
-- ✅ Add movies you have watched
-- 📅 Record the date you watched a movie
-- 🔍 Search for movies by name
-- ✏️ Update movie details
-- 🗑️ Delete movies from your list
-- 📋 View all movies sorted by date (newest first)
+MovieTracker is a user-friendly application that allows you to:
+- Add movies to your watchlist
+- Track movies you have watched
+- Search for watched movies
+- Update movie details
+- Delete movies from your list
 
-
-## Technology Stack
+### Technology Stack
 
 ### Backend
 - **Spring Boot** - Web Framework
@@ -28,14 +26,24 @@ Movietracker is a user-friendly application that allows you to:
 - **Bootstrap** - CSS Framework
 - **JavaScript** - Interactivity
 
-### Tools
-- **Maven** - Build Management
-- **Lombok** - Code Generation
-
 ### Getting Started
 1. **Start the application**
     - Run the `MovietrackerApplication` class in your IDE
 
 2. **Access the application**
    - Open your browser and navigate to: `http://localhost:8080`
+
+### Docker
+Package movietracker
+```
+./mvnw clean package
+```
+Build docker image
+```
+docker build -t movietracker:latest .
+```
+Run docker container
+```
+docker run --rm -p 8080:8080 movietracker:latest
+```
 

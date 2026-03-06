@@ -18,7 +18,7 @@
         <label th:text="${#dates.format(movie.dateWatched, 'yyyy-MM-dd')}"></label>
         <br/>
         <br/>
-        <a th:href="@{/}" class="btn btn-primary">Back to List</a>
+        <a th:if="${returnUrl}" th:href="${returnUrl}" class="btn btn-primary">Back to List</a>
         <button type="submit" class="btn btn-danger">Delete</button>
     </form>
 </div>

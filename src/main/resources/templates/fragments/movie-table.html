@@ -14,7 +14,7 @@
             </td>
             <td>
                 <a th:href="@{'/edit/' + ${movie.id} + '?returnUrl=' + ${returnUrl}}" class="btn btn-dark">✏️</a>
-                <a th:href="@{|/delete/${movie.id}|}" class="btn btn-dark">🗑️</a>
+                <a th:href="@{'/delete/' + ${movie.id} + '?returnUrl=' + ${returnUrl}}" class="btn btn-dark">🗑️</a>
             </td>
         </tr>
     </table>
