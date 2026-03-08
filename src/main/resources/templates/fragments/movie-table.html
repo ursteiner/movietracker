@@ -1,17 +1,17 @@
-<th:block th:fragment="movie-table (movies, showDateWatched, showStreamingUrl, returnUrl)">
+<th:block th:fragment="movie-table (movies, showDateWatched, returnUrl)">
     <table class="table">
         <tr>
             <th>Name</th>
+            <th>Steaming</th>
+            <th>Id</th>
             <th th:if="${showDateWatched}">Date watched</th>
-            <th th:if="${showStreamingUrl}">Streaming URL</th>
             <th>Actions</th>
         </tr>
         <tr th:each="movie : ${movies}">
-            <td th:text="${movie.name}"></td>
+            <td><a th:href="${movie.streamingUrl}" th:text="${movie.name}" target="_blank"></a></td>
+            <td th:text="${movie.streamingService}"></td>
+            <td th:text="${movie.movieId}"></td>
             <td th:if="${showDateWatched}" th:text="${#dates.format(movie.dateWatched, 'yyyy-MM-dd')}"></td>
-            <td th:if="${showStreamingUrl}">
-                <a th:href="${movie.streamingUrl}" th:text="${movie.streamingUrl}" target="_blank"></a>
-            </td>
             <td>
                 <a th:href="@{'/edit/' + ${movie.id} + '?returnUrl=' + ${returnUrl}}" class="btn btn-dark">✏️</a>
                 <a th:href="@{'/delete/' + ${movie.id} + '?returnUrl=' + ${returnUrl}}" class="btn btn-dark">🗑️</a>

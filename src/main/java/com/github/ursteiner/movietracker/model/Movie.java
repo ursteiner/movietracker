@@ -1,9 +1,6 @@
 package com.github.ursteiner.movietracker.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -23,8 +20,11 @@ public class Movie {
     private String name;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateWatched;
+    @Transient
     private String streamingUrl;
     private Boolean inWatchlist;
+    private String streamingService;
+    private String movieId;
 
 }
 

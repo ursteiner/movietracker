@@ -15,7 +15,7 @@
 
 <div class="container">
     <h2>Movie List <span class="badge text-bg-secondary opacity-50" th:text="${totalMovies}"></span></h2>
-    <div th:replace="~{fragments/movie-table :: movie-table(${movies}, true, false, '/')}"></div>
+    <div th:replace="~{fragments/movie-table :: movie-table(${movies}, true, '/')}"></div>
 
     <div class="d-flex justify-content-center">
         <div>

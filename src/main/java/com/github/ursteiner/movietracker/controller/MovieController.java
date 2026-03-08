@@ -1,9 +1,11 @@
 package com.github.ursteiner.movietracker.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.github.ursteiner.movietracker.model.Movie;
 import com.github.ursteiner.movietracker.repository.MovieRepository;
+import com.github.ursteiner.movietracker.service.StreamingUrlService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +22,8 @@ public class MovieController {
 
     @Autowired
     private MovieRepository movieRepository;
+    @Autowired
+    private StreamingUrlService streamingUrlService;
     
     @GetMapping("/")
     public String listMovies(Model model, @RequestParam("page") Optional<Integer> page, @RequestParam("size") Optional<Integer> size, @RequestParam(required = false) String searchName) {
@@ -29,11 +33,13 @@ public class MovieController {
         Pageable paging = PageRequest.of(currentPage -1, pageSize);
         Page<Movie> moviePage;
         if(searchName != null) {
-            moviePage = movieRepository.findByNameStartingWithIgnoreCaseAndInWatchlistFalseOrderByDateWatchedDesc(searchName, paging);
+            moviePage = movieRepository.findByNameContainingIgnoreCaseAndInWatchlistFalseOrderByDateWatchedDesc(searchName, paging);
         }else{
             moviePage = movieRepository.findByInWatchlistFalseOrderByDateWatchedDesc(paging);
         }
-        
+
+        fillStreamingUrl(moviePage.getContent());
+
         model.addAttribute("movies", moviePage.getContent());
         model.addAttribute("page", moviePage.getNumber() + 1);
         model.addAttribute("totalMovies", moviePage.getTotalElements());
@@ -45,7 +51,10 @@ public class MovieController {
 
     @GetMapping("/watchlist")
     public String listWatchlistMovies(Model model) {
-        model.addAttribute("watchlistMovies", movieRepository.findByInWatchlistTrueOrderByNameAsc());
+        List<Movie> watchlistMovies = movieRepository.findByInWatchlistTrueOrderByNameAsc();
+        fillStreamingUrl(watchlistMovies);
+
+        model.addAttribute("watchlistMovies", watchlistMovies);
         model.addAttribute("activePage", "watchlist");
         return "list-watchlist-movies";
     }
@@ -58,6 +67,8 @@ public class MovieController {
 
     @PostMapping("/add")
     public String addIMovie(Movie movie) {
+        movie.setMovieId(streamingUrlService.getMovieId(movie.getStreamingUrl()));
+        movie.setStreamingService(streamingUrlService.getServiceName(movie.getStreamingUrl()));
         movieRepository.save(movie);
         return getListRedirectUrl(movie);
     }
@@ -74,6 +85,8 @@ public class MovieController {
     @PostMapping("/update/{id}")
     public String updateMovie(@PathVariable("id") long id, Movie movie) {
         movie.setId(id);
+        movie.setMovieId(streamingUrlService.getMovieId(movie.getStreamingUrl()));
+        movie.setStreamingService(streamingUrlService.getServiceName(movie.getStreamingUrl()));
         movieRepository.save(movie);
         return getListRedirectUrl(movie);
     }
@@ -101,5 +114,9 @@ public class MovieController {
         }else {
             return "redirect:/";
         }
+    }
+
+    private void fillStreamingUrl(List<Movie> movies) {
+        movies.forEach(m -> m.setStreamingUrl(streamingUrlService.getMovieWatchUrl(m.getStreamingService(), m.getMovieId())));
     }
 }

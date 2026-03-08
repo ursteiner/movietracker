@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface MovieRepository extends JpaRepository<Movie, Long> {
     Page<Movie> findByInWatchlistFalseOrderByDateWatchedDesc(Pageable pageable);
-    Page<Movie> findByNameStartingWithIgnoreCaseAndInWatchlistFalseOrderByDateWatchedDesc(String searchName, Pageable pageable);
+    Page<Movie> findByNameContainingIgnoreCaseAndInWatchlistFalseOrderByDateWatchedDesc(String searchName, Pageable pageable);
     List<Movie> findByInWatchlistTrueOrderByNameAsc();
 
 }
