@@ -36,7 +36,7 @@ public class MovieRepositoryIntegrationTest {
 
     @Test
     void testFindByNameStartingWithIgnoreCaseAndInWatchlistFalseOrderByDateWatchedDesc() {
-        Page<Movie> results = movieRepository.findByNameStartingWithIgnoreCaseAndInWatchlistFalseOrderByDateWatchedDesc("mov", paging);
+        Page<Movie> results = movieRepository.findByNameContainingIgnoreCaseAndInWatchlistFalseOrderByDateWatchedDesc("mov", paging);
         assertThat(results).extracting(Movie::getName)
                 .containsExactly("Movie not in Watchlist 2", "Movie not in Watchlist 1");
     }
