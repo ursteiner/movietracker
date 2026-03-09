@@ -23,6 +23,7 @@ public class AmazonUrlAnalyzerTest {
     void getMovieId_ShouldReturnMovieId_WhenUrlIsValid(String url, String movieId) {
         assertThat(analyzer.getMovieId(url)).isEqualTo(movieId);
     }
+
     @ParameterizedTest
     @MethodSource("provideInvalidUrls")
     void getMovieId_ShouldReturnNull_WhenUrlIsValid(String url) {
