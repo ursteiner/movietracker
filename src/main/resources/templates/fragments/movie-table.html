@@ -3,14 +3,12 @@
         <tr>
             <th>Name</th>
             <th>Steaming</th>
-            <th>Id</th>
             <th th:if="${showDateWatched}">Date watched</th>
             <th>Actions</th>
         </tr>
         <tr th:each="movie : ${movies}">
             <td><a th:href="${movie.streamingUrl}" th:text="${movie.name}" target="_blank"></a></td>
             <td th:text="${movie.streamingService}"></td>
-            <td th:text="${movie.movieId}"></td>
             <td th:if="${showDateWatched}" th:text="${#dates.format(movie.dateWatched, 'yyyy-MM-dd')}"></td>
             <td>
                 <a th:href="@{'/edit/' + ${movie.id} + '?returnUrl=' + ${returnUrl}}" class="btn btn-dark">✏️</a>
