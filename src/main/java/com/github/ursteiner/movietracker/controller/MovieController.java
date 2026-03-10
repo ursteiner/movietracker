@@ -77,6 +77,7 @@ public class MovieController {
     public String showUpdateForm(@PathVariable("id") long id, @RequestParam(required = false) String returnUrl, Model model) {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid movie Id: " + id));
+        fillStreamingUrl(movie);
         model.addAttribute("movie", movie);
         model.addAttribute("returnUrl", returnUrl);
         return "update-movie";
@@ -117,6 +118,10 @@ public class MovieController {
     }
 
     private void fillStreamingUrl(List<Movie> movies) {
-        movies.forEach(m -> m.setStreamingUrl(streamingUrlService.getMovieWatchUrl(m.getStreamingService(), m.getMovieId())));
+        movies.forEach(this::fillStreamingUrl);
+    }
+
+    private void fillStreamingUrl(Movie movie) {
+        movie.setStreamingUrl(streamingUrlService.getMovieWatchUrl(movie.getStreamingService(), movie.getMovieId()));
     }
 }
