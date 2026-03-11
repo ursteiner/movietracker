@@ -108,7 +108,14 @@ public class MovieController {
         movieRepository.delete(movie);
         return getListRedirectUrl(movie);
     }
-    
+
+    @GetMapping("/statistic")
+    public String showStatistic(Model model) {
+        List<Object[]> moviesPerMonth = movieRepository.countMoviesWatchedPerYearMonthNative();
+        model.addAttribute("moviesPerMonth", moviesPerMonth);
+        return "statistic";
+    }
+
     private String getListRedirectUrl(Movie movie) {
         if(movie.getInWatchlist()) {
             return "redirect:/watchlist";

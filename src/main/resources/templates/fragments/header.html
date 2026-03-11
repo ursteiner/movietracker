@@ -17,6 +17,9 @@
                 <li class="nav-item">
                     <a th:class="'nav-link'+${activePage == 'add' ? ' active' : ''}" th:href="@{/add}">Add Movie</a>
                 </li>
+                <li class="nav-item">
+                    <a th:class="'nav-link'+${activePage == 'statistic' ? ' active' : ''}" th:href="@{/statistic}">Statistic</a>
+                </li>
             </ul>
             <form class="d-flex" role="search" th:action="@{/}" method="get">
                 <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
