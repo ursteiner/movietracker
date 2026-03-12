@@ -1,9 +1,15 @@
 <th:block th:fragment="movie-table (movies, showDateWatched, returnUrl)">
     <table class="table">
         <tr>
-            <th>Name</th>
+            <th>
+                Name
+                <a th:href="@{${returnUrl}(searchName=${searchName},page=${page},size=${size},sortBy='name',sortOrder='asc')}">⇅</a>
+            </th>
             <th>Steaming</th>
-            <th th:if="${showDateWatched}">Date watched</th>
+            <th th:if="${showDateWatched}">
+                Date watched
+                <a th:href="@{${returnUrl}(searchName=${searchName},page=${page},size=${size},sortBy='dateWatched',sortOrder='desc')}">⇅</a>
+            </th>
             <th>Actions</th>
         </tr>
         <tr th:each="movie : ${movies}">

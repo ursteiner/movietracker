@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,16 +29,24 @@ public class MovieController {
     private StreamingUrlService streamingUrlService;
     
     @GetMapping("/")
-    public String listMovies(Model model, @RequestParam("page") Optional<Integer> page, @RequestParam("size") Optional<Integer> size, @RequestParam(required = false) String searchName) {
+    public String listMovies(Model model,
+                             @RequestParam("page") Optional<Integer> page,
+                             @RequestParam("size") Optional<Integer> size,
+                             @RequestParam(required = false) String searchName,
+                             @RequestParam(defaultValue = "dateWatched") String sortBy,
+                             @RequestParam(defaultValue = "desc") String sortOrder) {
         int currentPage = page.orElse(1);
         int pageSize = size.orElse(15);
-        
-        Pageable paging = PageRequest.of(currentPage -1, pageSize);
+
+        Direction direction = sortOrder.equals("desc") ? Direction.DESC : Direction.ASC;
+        Order order = new Order(direction,sortBy);
+
+        Pageable paging = PageRequest.of(currentPage -1, pageSize, Sort.by(order));
         Page<Movie> moviePage;
         if(searchName != null) {
-            moviePage = movieRepository.findByNameContainingIgnoreCaseAndInWatchlistFalseOrderByDateWatchedDesc(searchName, paging);
+            moviePage = movieRepository.findByNameContainingIgnoreCaseAndInWatchlistFalse(searchName, paging);
         }else{
-            moviePage = movieRepository.findByInWatchlistFalseOrderByDateWatchedDesc(paging);
+            moviePage = movieRepository.findByInWatchlistFalse(paging);
         }
 
         fillStreamingUrl(moviePage.getContent());
@@ -45,7 +56,11 @@ public class MovieController {
         model.addAttribute("totalMovies", moviePage.getTotalElements());
         model.addAttribute("totalPages", moviePage.getTotalPages());
         model.addAttribute("size", pageSize);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortOrder", sortOrder);
         model.addAttribute("activePage", "list");
+        model.addAttribute("searchName", searchName);
+
         return "list-movies";
     }
 

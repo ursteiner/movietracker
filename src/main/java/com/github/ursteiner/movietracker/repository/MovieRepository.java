@@ -10,8 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface MovieRepository extends JpaRepository<Movie, Long> {
-    Page<Movie> findByInWatchlistFalseOrderByDateWatchedDesc(Pageable pageable);
-    Page<Movie> findByNameContainingIgnoreCaseAndInWatchlistFalseOrderByDateWatchedDesc(String searchName, Pageable pageable);
+    Page<Movie> findByInWatchlistFalse(Pageable pageable);
+    Page<Movie> findByNameContainingIgnoreCaseAndInWatchlistFalse(String searchName, Pageable pageable);
     List<Movie> findByInWatchlistTrueOrderByNameAsc();
 
     @Query(value = """

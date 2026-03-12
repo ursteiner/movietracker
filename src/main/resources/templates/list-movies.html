@@ -19,10 +19,12 @@
 
     <div class="d-flex justify-content-center">
         <div>
-            <a th:href="@{/(page=${page - 1},size=${size})}" class="btn btn-primary navigate" th:classappend="${page == 1} ? ' disabled' : ''">Previous</a>
+            <a th:href="@{/(page=${page - 1},size=${size},sortBy=${sortBy},sortOrder=${sortOrder})}"
+               class="btn btn-primary navigate" th:classappend="${page == 1} ? ' disabled' : ''">Previous</a>
             <span class="badge text-bg-secondary opacity-50" th:text="${page}"></span>
             <span class="badge text-bg-secondary opacity-50" th:text="${totalPages}"></span>
-            <a th:href="@{/(page=${page + 1},size=${size})}" class="btn btn-primary navigate" th:classappend="${page >= totalPages} ? ' disabled' : ''">Next</a>
+            <a th:href="@{/(page=${page + 1},size=${size},sortBy=${sortBy},sortOrder=${sortOrder})}"
+               class="btn btn-primary navigate" th:classappend="${page >= totalPages} ? ' disabled' : ''">Next</a>
         </div>
     </div>
 </div>

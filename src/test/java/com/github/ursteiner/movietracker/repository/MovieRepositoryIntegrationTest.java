@@ -9,6 +9,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,22 +31,22 @@ public class MovieRepositoryIntegrationTest {
         movieRepository.save(Movie.builder().name("Movie in Watchlist 1").dateWatched(formatter.parse("2026-02-15")).inWatchlist(true).build());
         movieRepository.save(Movie.builder().name("Movie not in Watchlist 2").dateWatched(formatter.parse("2026-03-20")).inWatchlist(false).build());
         movieRepository.save(Movie.builder().name("Different movie in Watchlist 1").dateWatched(formatter.parse("2026-04-25")).inWatchlist(true).build());
-        
-        paging = PageRequest.of(0, 10);
+        Sort.Order order = new Sort.Order(Sort.Direction.ASC,"name");
+        paging = PageRequest.of(0, 10, Sort.by(order));
     }
 
     @Test
     void testFindByNameStartingWithIgnoreCaseAndInWatchlistFalseOrderByDateWatchedDesc() {
-        Page<Movie> results = movieRepository.findByNameContainingIgnoreCaseAndInWatchlistFalseOrderByDateWatchedDesc("mov", paging);
+        Page<Movie> results = movieRepository.findByNameContainingIgnoreCaseAndInWatchlistFalse("mov", paging);
         assertThat(results).extracting(Movie::getName)
-                .containsExactly("Movie not in Watchlist 2", "Movie not in Watchlist 1");
+                .containsExactly("Movie not in Watchlist 1", "Movie not in Watchlist 2");
     }
 
     @Test
-    void testFindByInWatchlistFalseOrderByDateWatchedDesc() {
-        Page<Movie> results = movieRepository.findByInWatchlistFalseOrderByDateWatchedDesc(paging);
+    void testFindByInWatchlistFalse() {
+        Page<Movie> results = movieRepository.findByInWatchlistFalse(paging);
         assertThat(results).extracting(Movie::getName)
-                .containsExactly("Movie not in Watchlist 2", "Movie not in Watchlist 1");
+                .containsExactly("Movie not in Watchlist 1", "Movie not in Watchlist 2");
     }
 
     @Test
