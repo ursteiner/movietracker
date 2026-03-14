@@ -28,6 +28,7 @@
 	</scm>
 	<properties>
 		<bootstrap.version>5.3.8</bootstrap.version>
+		<bootstrap-icons.version>1.13.1</bootstrap-icons.version>
 		<java.version>21</java.version>
 		<lombok.version>1.18.42</lombok.version>
 	</properties>
@@ -67,6 +68,11 @@
 			<groupId>org.webjars</groupId>
 			<artifactId>bootstrap</artifactId>
 			<version>${bootstrap.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>bootstrap-icons</artifactId>
+			<version>${bootstrap-icons.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
