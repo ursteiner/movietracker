@@ -5,11 +5,6 @@
     <title>🎬 MovieTracker</title>
     <link th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}" rel="stylesheet"/>
     <link th:href="@{/webjars/bootstrap-icons/1.13.1/font/bootstrap-icons.css}" rel="stylesheet">
-    <style>
-        .navigate {
-            width: 100px;
-        }
-    </style>
 </head>
 <body>
 <div th:replace="~{fragments/header}"></div>
@@ -20,12 +15,11 @@
 
     <div class="d-flex justify-content-center">
         <div>
-            <a th:href="@{/(page=${page - 1},size=${size},sortBy=${sortBy},sortOrder=${sortOrder})}"
-               class="btn btn-primary navigate" th:classappend="${page == 1} ? ' disabled' : ''">Previous</a>
-            <span class="badge text-bg-secondary opacity-50" th:text="${page}"></span>
-            <span class="badge text-bg-secondary opacity-50" th:text="${totalPages}"></span>
-            <a th:href="@{/(page=${page + 1},size=${size},sortBy=${sortBy},sortOrder=${sortOrder})}"
-               class="btn btn-primary navigate" th:classappend="${page >= totalPages} ? ' disabled' : ''">Next</a>
+            <a th:each="p : ${#numbers.sequence(1,totalPages)}"
+               th:href="@{/(page=${p},size=${size},sortBy=${sortBy},sortOrder=${sortOrder})}"
+               th:text="${p}" th:class="${p == page} ? 'btn btn-primary' : 'btn btn-outline-primary'"
+               th:classappend="${p == page} ? ' disabled' : ''">
+            </a>
         </div>
     </div>
 </div>

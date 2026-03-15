@@ -54,7 +54,7 @@ public class MovieController {
         model.addAttribute("movies", moviePage.getContent());
         model.addAttribute("page", moviePage.getNumber() + 1);
         model.addAttribute("totalMovies", moviePage.getTotalElements());
-        model.addAttribute("totalPages", moviePage.getTotalPages());
+        model.addAttribute("totalPages", moviePage.getTotalPages() == 0 ? 1 : moviePage.getTotalPages());
         model.addAttribute("size", pageSize);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("sortOrder", sortOrder);
