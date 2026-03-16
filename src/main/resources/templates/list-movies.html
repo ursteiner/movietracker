@@ -14,7 +14,7 @@
     <div th:replace="~{fragments/movie-table :: movie-table(${movies}, true, '/')}"></div>
 
     <div class="d-flex justify-content-center">
-        <div>
+        <div class="btn-group" role="group" aria-label="Page navigation">
             <a th:each="p : ${#numbers.sequence(1,totalPages)}"
                th:href="@{/(page=${p},size=${size},sortBy=${sortBy},sortOrder=${sortOrder})}"
                th:text="${p}" th:class="${p == page} ? 'btn btn-primary' : 'btn btn-outline-primary'"
