@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -19,7 +19,7 @@ public class Movie {
     private Long id;
     private String name;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date dateWatched;
+    private LocalDate dateWatched;
     @Transient
     private String streamingUrl;
     private Boolean inWatchlist;

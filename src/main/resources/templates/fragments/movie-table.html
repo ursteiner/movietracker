@@ -19,7 +19,7 @@
         <tr th:each="movie : ${movies}">
             <td><a th:href="${movie.streamingUrl}" th:text="${movie.name}" target="_blank"></a></td>
             <td th:text="${movie.streamingService}"></td>
-            <td th:if="${showDateWatched}" th:text="${#dates.format(movie.dateWatched, 'yyyy-MM-dd')}"></td>
+            <td th:if="${showDateWatched}" th:text="${#temporals.format(movie.dateWatched, 'yyyy-MM-dd')}"></td>
             <td>
                 <a th:href="@{'/edit/' + ${movie.id} + '?returnUrl=' + ${returnUrl}}" class="btn btn-dark bi bi-pencil"></a>
                 <a th:href="@{'/delete/' + ${movie.id} + '?returnUrl=' + ${returnUrl}}" class="btn btn-dark bi bi-trash"></a>
