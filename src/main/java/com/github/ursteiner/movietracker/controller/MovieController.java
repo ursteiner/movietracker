@@ -136,11 +136,7 @@ public class MovieController {
     }
 
     private String getListRedirectUrl(Movie movie) {
-        if(movie.getInWatchlist()) {
-            return "redirect:/watchlist";
-        }else {
-            return "redirect:/";
-        }
+        return Boolean.TRUE.equals(movie.getInWatchlist()) ? "redirect:/watchlist" : "redirect:/";
     }
 
     private void fillStreamingUrl(List<Movie> movies) {
