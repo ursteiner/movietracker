@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.List;
 
 @DataJpaTest
@@ -20,17 +20,16 @@ public class MovieRepositoryIntegrationTest {
 
     @Autowired
     private MovieRepository movieRepository;
-    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     private Pageable paging;
     
     @BeforeEach
     void setUp() throws ParseException {
         movieRepository.deleteAll();
 
-        movieRepository.save(Movie.builder().name("Movie not in Watchlist 1").dateWatched(formatter.parse("2026-01-10")).inWatchlist(false).build());
-        movieRepository.save(Movie.builder().name("Movie in Watchlist 1").dateWatched(formatter.parse("2026-02-15")).inWatchlist(true).build());
-        movieRepository.save(Movie.builder().name("Movie not in Watchlist 2").dateWatched(formatter.parse("2026-03-20")).inWatchlist(false).build());
-        movieRepository.save(Movie.builder().name("Different movie in Watchlist 1").dateWatched(formatter.parse("2026-04-25")).inWatchlist(true).build());
+        movieRepository.save(Movie.builder().name("Movie not in Watchlist 1").dateWatched(LocalDate.parse("2026-01-10")).inWatchlist(false).build());
+        movieRepository.save(Movie.builder().name("Movie in Watchlist 1").dateWatched(LocalDate.parse("2026-02-15")).inWatchlist(true).build());
+        movieRepository.save(Movie.builder().name("Movie not in Watchlist 2").dateWatched(LocalDate.parse("2026-03-20")).inWatchlist(false).build());
+        movieRepository.save(Movie.builder().name("Different movie in Watchlist 1").dateWatched(LocalDate.parse("2026-04-25")).inWatchlist(true).build());
         Sort.Order order = new Sort.Order(Sort.Direction.ASC,"name");
         paging = PageRequest.of(0, 10, Sort.by(order));
     }
