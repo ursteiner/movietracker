@@ -23,11 +23,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class MovieController {
 
+    private final MovieRepository movieRepository;
+    private final StreamingUrlService streamingUrlService;
+
     @Autowired
-    private MovieRepository movieRepository;
-    @Autowired
-    private StreamingUrlService streamingUrlService;
-    
+    public MovieController(MovieRepository movieRepository, StreamingUrlService streamingUrlService){
+        this.movieRepository = movieRepository;
+        this.streamingUrlService = streamingUrlService;
+    }
+
     @GetMapping("/")
     public String listMovies(Model model,
                              @RequestParam("page") Optional<Integer> page,
@@ -81,7 +85,7 @@ public class MovieController {
     }
 
     @PostMapping("/add")
-    public String addIMovie(Movie movie) {
+    public String addMovie(Movie movie) {
         movie.setMovieId(streamingUrlService.getMovieId(movie.getStreamingUrl()));
         movie.setStreamingService(streamingUrlService.getServiceName(movie.getStreamingUrl()));
         movieRepository.save(movie);
