@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class MovieRepositoryIntegrationTest {
     private Pageable paging;
     
     @BeforeEach
-    void setUp() throws ParseException {
+    void setUp() {
         movieRepository.deleteAll();
 
         movieRepository.save(Movie.builder().name("Movie not in Watchlist 1").dateWatched(LocalDate.parse("2026-01-10")).inWatchlist(false).build());
