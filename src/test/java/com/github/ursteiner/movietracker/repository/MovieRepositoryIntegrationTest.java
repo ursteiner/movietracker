@@ -38,6 +38,7 @@ public class MovieRepositoryIntegrationTest {
         movieRepository.save(Movie.builder().name("Movie in Watchlist 1").dateWatched(LocalDate.parse("2026-02-15")).inWatchlist(true).user(user1).build());
         movieRepository.save(Movie.builder().name("Movie not in Watchlist 2").dateWatched(LocalDate.parse("2026-03-20")).inWatchlist(false).user(user1).build());
         movieRepository.save(Movie.builder().name("Different movie in Watchlist 1").dateWatched(LocalDate.parse("2026-04-25")).inWatchlist(true).user(user1).build());
+        movieRepository.save(Movie.builder().name("One more movie").dateWatched(LocalDate.parse("2026-04-25")).inWatchlist(true).user(user1).build());
 
         AppUser user2 = AppUser.builder().username("testuser2").build();
         user2 = userRepository.save(user2);
@@ -52,24 +53,32 @@ public class MovieRepositoryIntegrationTest {
     }
 
     @Test
-    void testFindByNameStartingWithIgnoreCaseAndInWatchlistFalseOrderByDateWatchedDesc() {
+    void testFindByUserIdAndNameContainingIgnoreCaseAndInWatchlistFalse() {
         Page<Movie> results = movieRepository.findByUserIdAndNameContainingIgnoreCaseAndInWatchlistFalse(user1.getId(), "mov", paging);
         assertThat(results).extracting(Movie::getName)
                 .containsExactly("Movie not in Watchlist 1", "Movie not in Watchlist 2");
     }
 
     @Test
-    void testFindByInWatchlistFalse() {
+    void testFindByUserIdAndInWatchlistFalse() {
         Page<Movie> results = movieRepository.findByUserIdAndInWatchlistFalse(user1.getId(), paging);
         assertThat(results).extracting(Movie::getName)
                 .containsExactly("Movie not in Watchlist 1", "Movie not in Watchlist 2");
     }
 
     @Test
-    void testFindByInWatchlistTrueOrderByNameAsc() {
+    void testFindByUserIdAndInWatchlistTrueOrderByNameAsc() {
         List<Movie> results = movieRepository.findByUserIdAndInWatchlistTrueOrderByNameAsc(user1.getId());
         assertThat(results).extracting(Movie::getName)
-                .containsExactly("Different movie in Watchlist 1", "Movie in Watchlist 1");
+                .containsExactly("Different movie in Watchlist 1", "Movie in Watchlist 1", "One more movie");
+    }
+
+    @Test
+    void testCountMoviesWatchedPerYearMonthNative(){
+        int totalMovies = movieRepository.countMoviesWatchedPerYearMonthNative(user1.getId()).stream()
+                .mapToInt(result -> result.length)
+                .sum();
+        assertThat(totalMovies).isEqualTo(4);
     }
 
 }
