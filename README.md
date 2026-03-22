@@ -11,7 +11,7 @@ MovieTracker is a user-friendly application that allows you to:
 - Add movies to your collection
 - Track movies you have watched
 - Search for watched movies
-- Update movie details (rating, notes, watched status)
+- Update movie details
 - Delete movies from your list
 - Extract streaming URLs (Netflix, Amazon Prime, YouTube)
 - View movie statistics
@@ -31,7 +31,6 @@ MovieTracker is a user-friendly application that allows you to:
 - **HTML5** - Markup
 - **Bootstrap** - CSS Framework
 - **Bootstrap Icons** - Icon Library
-- **JavaScript** - Client-side Interactivity
 
 ## Getting Started
 
@@ -53,9 +52,9 @@ Create a GitHub OAuth2 Application:
 2. **Configure GitHub OAuth2 credentials**
    Set environment variables:
    ```bash
-   # Windows (PowerShell)
-   $env:GITHUB_CLIENT_ID="your-client-id"
-   $env:GITHUB_CLIENT_SECRET="your-client-secret"
+   # Windows
+   set GITHUB_CLIENT_ID="your-client-id"
+   set GITHUB_CLIENT_SECRET="your-client-secret"
    
    # Linux/Mac
    export GITHUB_CLIENT_ID="your-client-id"
