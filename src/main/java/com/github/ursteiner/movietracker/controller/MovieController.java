@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import com.github.ursteiner.movietracker.model.Movie;
 import com.github.ursteiner.movietracker.repository.MovieRepository;
+import com.github.ursteiner.movietracker.repository.UserRepository;
 import com.github.ursteiner.movietracker.service.StreamingUrlService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,20 +29,30 @@ public class MovieController {
 
     private final MovieRepository movieRepository;
     private final StreamingUrlService streamingUrlService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public MovieController(MovieRepository movieRepository, StreamingUrlService streamingUrlService){
+    public MovieController(MovieRepository movieRepository, StreamingUrlService streamingUrlService, UserRepository userRepository){
         this.movieRepository = movieRepository;
         this.streamingUrlService = streamingUrlService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/")
+    public String index() {
+        return "index";
+    }
+
+    @GetMapping("/movies")
     public String listMovies(Model model,
                              @RequestParam("page") Optional<Integer> page,
                              @RequestParam("size") Optional<Integer> size,
                              @RequestParam(required = false) String searchName,
                              @RequestParam(defaultValue = "dateWatched") String sortBy,
                              @RequestParam(defaultValue = "desc") String sortOrder) {
+
+        Long currentUser = getCurrentUserId();
+
         int currentPage = page.orElse(1);
         int pageSize = size.orElse(15);
 
@@ -48,9 +62,9 @@ public class MovieController {
         Pageable paging = PageRequest.of(currentPage -1, pageSize, Sort.by(order));
         Page<Movie> moviePage;
         if(searchName != null) {
-            moviePage = movieRepository.findByNameContainingIgnoreCaseAndInWatchlistFalse(searchName, paging);
+            moviePage = movieRepository.findByUserIdAndNameContainingIgnoreCaseAndInWatchlistFalse(currentUser, searchName, paging);
         }else{
-            moviePage = movieRepository.findByInWatchlistFalse(paging);
+            moviePage = movieRepository.findByUserIdAndInWatchlistFalse(currentUser, paging);
         }
 
         fillStreamingUrl(moviePage.getContent());
@@ -70,7 +84,9 @@ public class MovieController {
 
     @GetMapping("/watchlist")
     public String listWatchlistMovies(Model model) {
-        List<Movie> watchlistMovies = movieRepository.findByInWatchlistTrueOrderByNameAsc();
+        Long currentUser = getCurrentUserId();
+
+        List<Movie> watchlistMovies = movieRepository.findByUserIdAndInWatchlistTrueOrderByNameAsc(currentUser);
         fillStreamingUrl(watchlistMovies);
 
         model.addAttribute("watchlistMovies", watchlistMovies);
@@ -86,8 +102,11 @@ public class MovieController {
 
     @PostMapping("/add")
     public String addMovie(Movie movie) {
+        Long currentUser = getCurrentUserId();
+
         movie.setMovieId(streamingUrlService.getMovieId(movie.getStreamingUrl()));
         movie.setStreamingService(streamingUrlService.getServiceName(movie.getStreamingUrl()));
+        movie.setUser(userRepository.findById(currentUser).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + currentUser)));
         movieRepository.save(movie);
         return getListRedirectUrl(movie);
     }
@@ -130,7 +149,8 @@ public class MovieController {
 
     @GetMapping("/statistic")
     public String showStatistic(Model model) {
-        List<Object[]> moviesPerMonth = movieRepository.countMoviesWatchedPerYearMonthNative();
+        Long currentUser = getCurrentUserId();
+        List<Object[]> moviesPerMonth = movieRepository.countMoviesWatchedPerYearMonthNative(currentUser);
         model.addAttribute("moviesPerMonth", moviesPerMonth);
         return "statistic";
     }
@@ -145,5 +165,21 @@ public class MovieController {
 
     private void fillStreamingUrl(Movie movie) {
         movie.setStreamingUrl(streamingUrlService.getMovieWatchUrl(movie.getStreamingService(), movie.getMovieId()));
+    }
+
+    public static Long getCurrentUserId() {
+       OAuth2User currentUser = getCurrentUser();
+       if (currentUser != null) {
+           return currentUser.getAttribute("appUserId");
+       }
+       return null;
+    }
+
+    public static OAuth2User getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof OAuth2User) {
+            return (OAuth2User) principal;
+        }
+        return null;
     }
 }

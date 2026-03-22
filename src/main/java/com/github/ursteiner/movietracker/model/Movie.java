@@ -25,6 +25,8 @@ public class Movie {
     private Boolean inWatchlist;
     private String streamingService;
     private String movieId;
-
+    @ManyToOne
+    @JoinColumn(name = "user_id")  // Foreign key in 'movie' table
+    private AppUser user;
 }
 

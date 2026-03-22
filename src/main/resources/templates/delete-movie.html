@@ -15,7 +15,7 @@
         <label th:text="*{name}"></label>
         <br>
         <label>Date watched:</label>
-        <label th:text="${#dates.format(movie.dateWatched, 'yyyy-MM-dd')}"></label>
+        <label th:text="${#temporals.format(movie.dateWatched, 'yyyy-MM-dd')}"></label>
         <br/>
         <br/>
         <a th:if="${returnUrl}" th:href="${returnUrl}" class="btn btn-primary">Back to List</a>
