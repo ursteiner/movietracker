@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 public class MovieController {
@@ -113,8 +115,10 @@ public class MovieController {
 
     @GetMapping("/edit/{id}")
     public String showUpdateForm(@PathVariable("id") long id, @RequestParam(required = false) String returnUrl, Model model) {
-        Movie movie = movieRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid movie Id: " + id));
+        Long currentUser = getCurrentUserId();
+        Movie movie = movieRepository.findByIdAndUserId(id, currentUser)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
+
         fillStreamingUrl(movie);
         model.addAttribute("movie", movie);
         model.addAttribute("returnUrl", returnUrl);
@@ -123,17 +127,26 @@ public class MovieController {
 
     @PostMapping("/update/{id}")
     public String updateMovie(@PathVariable("id") long id, Movie movie) {
-        movie.setId(id);
-        movie.setMovieId(streamingUrlService.getMovieId(movie.getStreamingUrl()));
-        movie.setStreamingService(streamingUrlService.getServiceName(movie.getStreamingUrl()));
-        movieRepository.save(movie);
-        return getListRedirectUrl(movie);
+        Long currentUser = getCurrentUserId();
+        Movie foundMovie = movieRepository.findByIdAndUserId(id, currentUser)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
+
+        foundMovie.setName(movie.getName());
+        foundMovie.setDateWatched(movie.getDateWatched());
+        foundMovie.setInWatchlist(movie.getInWatchlist());
+        foundMovie.setMovieId(streamingUrlService.getMovieId(movie.getStreamingUrl()));
+        foundMovie.setStreamingService(streamingUrlService.getServiceName(movie.getStreamingUrl()));
+
+        movieRepository.save(foundMovie);
+        return getListRedirectUrl(foundMovie);
     }
 
     @GetMapping("/delete/{id}")
     public String showDeleteForm(@PathVariable("id") long id, @RequestParam(required = false) String returnUrl, Model model) {
-        Movie movie = movieRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid movie Id: " + id));
+        Long currentUser = getCurrentUserId();
+        Movie movie = movieRepository.findByIdAndUserId(id, currentUser)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
+
         model.addAttribute("movie", movie);
         model.addAttribute("returnUrl", returnUrl);
         return "delete-movie";
@@ -141,8 +154,10 @@ public class MovieController {
 
     @PostMapping("/delete/{id}")
     public String deleteMovie(@PathVariable("id") long id) {
-        Movie movie = movieRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid item Id: " + id));
+        Long currentUser = getCurrentUserId();
+        Movie movie = movieRepository.findByIdAndUserId(id, currentUser)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
+
         movieRepository.delete(movie);
         return getListRedirectUrl(movie);
     }

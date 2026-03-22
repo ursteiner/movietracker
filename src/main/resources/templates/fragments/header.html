@@ -21,7 +21,7 @@
                     <a th:class="'nav-link'+${activePage == 'statistic' ? ' active' : ''}" th:href="@{/statistic}">Statistic</a>
                 </li>
             </ul>
-            <form class="d-flex" role="search" th:action="@{/}" method="get">
+            <form class="d-flex" role="search" th:action="@{/movies}" method="get">
                 <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
                        name="searchName" th:value="${searchName}"/>
                 <button class="btn btn-outline-success" type="submit">Search</button>

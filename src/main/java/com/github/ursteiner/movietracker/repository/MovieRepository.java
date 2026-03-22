@@ -9,11 +9,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MovieRepository extends JpaRepository<Movie, Long> {
     Page<Movie> findByUserIdAndInWatchlistFalse(Long appUserId, Pageable pageable);
     Page<Movie> findByUserIdAndNameContainingIgnoreCaseAndInWatchlistFalse(Long appUserId,String searchName, Pageable pageable);
     List<Movie> findByUserIdAndInWatchlistTrueOrderByNameAsc(Long appUserId);
+    Optional<Movie> findByIdAndUserId(Long movieId, Long userId);
 
     @Query(value = """
             SELECT SUBSTRING(date_watched, 1, 7) AS year_month, COUNT(*) AS count
