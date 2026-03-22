@@ -16,6 +16,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) {
         http
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/")
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/webjars/**", "/login**").permitAll()
                         .anyRequest().authenticated()

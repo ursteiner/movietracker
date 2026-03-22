@@ -26,6 +26,9 @@
                        name="searchName" th:value="${searchName}"/>
                 <button class="btn btn-outline-success" type="submit">Search</button>
             </form>
+            <div class="avatar" th:if="${#authentication.authenticated and #authentication.name != 'anonymousUser'}">
+                <a href="/"><img style="margin-left:10px;width:32px;" class="avatar-img rounded-circle" th:src="${#authentication.principal.getAttribute('avatar_url')}" alt="Avatar"/></a>
+            </div>
         </div>
     </div>
 </nav>
