@@ -1,22 +1,23 @@
 package com.github.ursteiner.movietracker.component;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class AbstractStreamingUrlAnalyzer implements StreamingUrlAnalyzer {
 
-    private final Pattern idPattern;
+    private final List<Pattern> idPatterns;
     private final String streamBaseUrl;
     private final String streamingServiceName;
     private final String streamingHostIdentifier;
 
     protected AbstractStreamingUrlAnalyzer(
-            Pattern idPattern,
+            List<Pattern> idPatterns,
             String streamBaseUrl,
             String streamingServiceName,
             String streamingHostIdentifier
     ) {
-        this.idPattern = idPattern;
+        this.idPatterns = idPatterns;
         this.streamBaseUrl = streamBaseUrl;
         this.streamingServiceName = streamingServiceName;
         this.streamingHostIdentifier = streamingHostIdentifier;
@@ -34,10 +35,13 @@ public abstract class AbstractStreamingUrlAnalyzer implements StreamingUrlAnalyz
 
     @Override
     public String getMovieId(String url) {
-        Matcher matcher = idPattern.matcher(url);
-        if (matcher.find()) {
-            return matcher.group(1);
+        for(Pattern idPattern : idPatterns) {
+            Matcher matcher = idPattern.matcher(url);
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
         }
+
         return null;
     }
 

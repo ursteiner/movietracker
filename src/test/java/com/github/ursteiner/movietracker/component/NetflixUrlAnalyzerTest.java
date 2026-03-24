@@ -32,7 +32,9 @@ public class NetflixUrlAnalyzerTest {
     private static Stream<Arguments> provideValidUrls() {
         return Stream.of(
                 Arguments.of("https://www.netflix.com/watch/12345678", "12345678"),
-                Arguments.of("https://www.netflix.de/watch/1234567?trackId=123456", "1234567")
+                Arguments.of("https://www.netflix.de/watch/1234567?trackId=123456", "1234567"),
+                Arguments.of("https://www.netflix.de/title/65432", "65432"),
+                Arguments.of("https://www.netflix.com/browse?jbv=44556677", "44556677")
         );
     }
 
