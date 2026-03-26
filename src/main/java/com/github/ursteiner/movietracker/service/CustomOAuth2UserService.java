@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,6 +51,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             newUser.setGithubId(providerUserId);
             newUser.setUsername(userName);
             newUser.setEmail(email);
+            newUser.setRegistrationDate(LocalDate.now());
             return userRepository.save(newUser);
         }
 
