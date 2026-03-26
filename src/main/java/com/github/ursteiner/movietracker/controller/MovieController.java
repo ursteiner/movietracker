@@ -29,6 +29,8 @@ import org.springframework.web.server.ResponseStatusException;
 @Controller
 public class MovieController {
 
+    private static final int PAGE_SIZE = 15;
+
     private final MovieRepository movieRepository;
     private final StreamingUrlService streamingUrlService;
     private final UserRepository userRepository;
@@ -48,7 +50,6 @@ public class MovieController {
     @GetMapping("/movies")
     public String listMovies(Model model,
                              @RequestParam("page") Optional<Integer> page,
-                             @RequestParam("size") Optional<Integer> size,
                              @RequestParam(required = false) String searchName,
                              @RequestParam(defaultValue = "dateWatched") String sortBy,
                              @RequestParam(defaultValue = "desc") String sortOrder) {
@@ -56,12 +57,11 @@ public class MovieController {
         Long currentUser = getCurrentUserId();
 
         int currentPage = page.orElse(1);
-        int pageSize = size.orElse(15);
 
         Direction direction = sortOrder.equals("desc") ? Direction.DESC : Direction.ASC;
         Order order = new Order(direction,sortBy);
 
-        Pageable paging = PageRequest.of(currentPage -1, pageSize, Sort.by(order));
+        Pageable paging = PageRequest.of(currentPage -1, PAGE_SIZE, Sort.by(order));
         Page<Movie> moviePage;
         if(searchName != null) {
             moviePage = movieRepository.findByUserIdAndNameContainingIgnoreCaseAndInWatchlistFalse(currentUser, searchName, paging);
@@ -75,7 +75,7 @@ public class MovieController {
         model.addAttribute("page", moviePage.getNumber() + 1);
         model.addAttribute("totalMovies", moviePage.getTotalElements());
         model.addAttribute("totalPages", moviePage.getTotalPages() == 0 ? 1 : moviePage.getTotalPages());
-        model.addAttribute("size", pageSize);
+        model.addAttribute("size", PAGE_SIZE);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("sortOrder", sortOrder);
         model.addAttribute("activePage", "list");
