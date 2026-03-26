@@ -3,14 +3,14 @@
         <tr>
             <th>
                 Name
-                <a th:href="@{${returnUrl}(searchName=${searchName},page=${page},sortBy='name',sortOrder='asc')}">
+                <a th:href="@{${site}(searchName=${searchName},page=${page},sortBy='name',sortOrder='asc')}">
                     <i class="bi bi-sort-alpha-down"></i>
                 </a>
             </th>
             <th>Steaming</th>
             <th th:if="${showDateWatched}">
                 Date watched
-                <a th:href="@{${returnUrl}(searchName=${searchName},page=${page},sortBy='dateWatched',sortOrder='desc')}">
+                <a th:href="@{${site}(searchName=${searchName},page=${page},sortBy='dateWatched',sortOrder='desc')}">
                     <i class="bi bi-sort-alpha-down-alt"></i>
                 </a>
             </th>
@@ -21,8 +21,8 @@
             <td th:text="${movie.streamingService}"></td>
             <td th:if="${showDateWatched}" th:text="${#temporals.format(movie.dateWatched, 'yyyy-MM-dd')}"></td>
             <td>
-                <a th:href="@{'/edit/' + ${movie.id} + '?returnUrl=' + ${returnUrl}}" class="btn btn-dark bi bi-pencil"></a>
-                <a th:href="@{'/delete/' + ${movie.id} + '?returnUrl=' + ${returnUrl}}" class="btn btn-dark bi bi-trash"></a>
+                <a th:href="@{/edit/{id}(id=${movie.id}, returnUrl=${returnUrl})}" class="btn btn-dark bi bi-pencil"></a>
+                <a th:href="@{/delete/{id}(id=${movie.id}, returnUrl=${returnUrl})}" class="btn btn-dark bi bi-trash"></a>
             </td>
         </tr>
     </table>

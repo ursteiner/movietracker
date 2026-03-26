@@ -11,7 +11,7 @@
 
 <div class="container">
     <h2>Movie Watchlist <span class="badge text-bg-secondary opacity-50" th:text="(${watchlistMovies} == null ? 0 : ${watchlistMovies.size()})"></span></h2>
-    <div th:replace="~{fragments/movie-table :: movie-table(${watchlistMovies}, false, '/watchlist')}">
+    <div th:replace="~{fragments/movie-table :: movie-table(${watchlistMovies}, false, @{/watchlist(page=${page},sortBy=${sortBy},sortOrder=${sortOrder})}, '/watchlist')}">
     </div>
 </div>
 </body>
