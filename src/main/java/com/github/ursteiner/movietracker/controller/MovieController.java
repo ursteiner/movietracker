@@ -56,10 +56,11 @@ public class MovieController {
 
         Long currentUser = getCurrentUserId();
 
-        int currentPage = page.orElse(1);
+        int currentPage = normalizePageNumber(page.orElse(1));
+        AllowedSortField validatedSortField = normalizeSortBy(sortBy);
+        Direction direction = normalizeSortOrder(sortOrder);
 
-        Direction direction = sortOrder.equals("desc") ? Direction.DESC : Direction.ASC;
-        Order order = new Order(direction,sortBy);
+        Order order = new Order(direction, validatedSortField.property());
 
         Pageable paging = PageRequest.of(currentPage -1, PAGE_SIZE, Sort.by(order));
         Page<Movie> moviePage;
@@ -76,8 +77,8 @@ public class MovieController {
         model.addAttribute("totalMovies", moviePage.getTotalElements());
         model.addAttribute("totalPages", moviePage.getTotalPages() == 0 ? 1 : moviePage.getTotalPages());
         model.addAttribute("size", PAGE_SIZE);
-        model.addAttribute("sortBy", sortBy);
-        model.addAttribute("sortOrder", sortOrder);
+        model.addAttribute("sortBy", validatedSortField.property());
+        model.addAttribute("sortOrder", direction.name().toLowerCase());
         model.addAttribute("activePage", "list");
         model.addAttribute("searchName", searchName);
 
@@ -180,6 +181,18 @@ public class MovieController {
 
     private void fillStreamingUrl(Movie movie) {
         movie.setStreamingUrl(streamingUrlService.getMovieWatchUrl(movie.getStreamingService(), movie.getMovieId()));
+    }
+
+    static int normalizePageNumber(int page) {
+        return Math.max(page, 1);
+    }
+
+    static AllowedSortField normalizeSortBy(String sortBy) {
+        return AllowedSortField.fromString(sortBy);
+    }
+
+    static Direction normalizeSortOrder(String sortOrder) {
+        return "asc".equalsIgnoreCase(sortOrder) ? Direction.ASC : Direction.DESC;
     }
 
     public static Long getCurrentUserId() {
