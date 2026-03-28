@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.github.ursteiner.movietracker.model.Movie;
+import com.github.ursteiner.movietracker.model.MoviesPerMonthDTO;
 import com.github.ursteiner.movietracker.repository.MovieRepository;
 import com.github.ursteiner.movietracker.repository.UserRepository;
 import com.github.ursteiner.movietracker.service.StreamingUrlService;
@@ -166,7 +167,7 @@ public class MovieController {
     @GetMapping("/statistic")
     public String showStatistic(Model model) {
         Long currentUser = getCurrentUserId();
-        List<Object[]> moviesPerMonth = movieRepository.countMoviesWatchedPerYearMonthNative(currentUser);
+        List<MoviesPerMonthDTO> moviesPerMonth = movieRepository.countMoviesWatchedPerYearMonthNative(currentUser);
         model.addAttribute("moviesPerMonth", moviesPerMonth);
         return "statistic";
     }

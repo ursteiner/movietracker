@@ -13,11 +13,17 @@
   <table class="table">
     <tr>
       <th>Year-Month</th>
-      <th>Movies</th>
+      <th>Amazon</th>
+      <th>Netflix</th>
+      <th>Youtube</th>
+      <th>Total</th>
     </tr>
-    <tr th:each="statistic : ${moviesPerMonth}">
-      <td th:text="${statistic[0]}"></td>
-      <td th:text="${statistic[1]}"></td>
+    <tr th:each="monthStats : ${moviesPerMonth}">
+      <td th:text="${monthStats.yearMonth}"></td>
+      <td th:text="${monthStats.countAmazon}"></td>
+      <td th:text="${monthStats.countNetflix}"></td>
+      <td th:text="${monthStats.countYoutube}"></td>
+      <td th:text="${monthStats.countTotal}"></td>
     </tr>
   </table>
 </div>

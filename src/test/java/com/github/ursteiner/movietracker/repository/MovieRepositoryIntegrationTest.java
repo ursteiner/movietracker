@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import com.github.ursteiner.movietracker.model.AppUser;
 import com.github.ursteiner.movietracker.model.Movie;
+import com.github.ursteiner.movietracker.model.MoviesPerMonthDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,21 +35,21 @@ public class MovieRepositoryIntegrationTest {
         user1 = AppUser.builder().username("testuser1").build();
         user1 = userRepository.save(user1);
 
-        movieRepository.save(Movie.builder().name("Movie not in Watchlist 1").dateWatched(LocalDate.parse("2026-01-10")).inWatchlist(false).user(user1).build());
-        movieRepository.save(Movie.builder().name("Movie in Watchlist 1").dateWatched(LocalDate.parse("2026-02-15")).inWatchlist(true).user(user1).build());
-        movieRepository.save(Movie.builder().name("Movie not in Watchlist 2").dateWatched(LocalDate.parse("2026-03-20")).inWatchlist(false).user(user1).build());
-        movieRepository.save(Movie.builder().name("Different movie in Watchlist 1").dateWatched(LocalDate.parse("2026-04-25")).inWatchlist(true).user(user1).build());
-        movieRepository.save(Movie.builder().name("One more movie").dateWatched(LocalDate.parse("2026-04-25")).inWatchlist(true).user(user1).build());
+        saveMovie("Movie not in Watchlist 1", "2026-01-10", false, "s1", user1);
+        saveMovie("Movie in Watchlist 1", "2026-02-15", true, "s1", user1);
+        saveMovie("Movie not in Watchlist 2", "2026-03-20", false, "s1", user1);
+        saveMovie("Different movie in Watchlist 1", "2026-04-25", true, "s1", user1);
+        saveMovie("One more movie", "2026-04-25", true, "s1", user1);
 
         AppUser user2 = AppUser.builder().username("testuser2").build();
         user2 = userRepository.save(user2);
 
-        movieRepository.save(Movie.builder().name("Movie not in Watchlist 1").dateWatched(LocalDate.parse("2026-01-10")).inWatchlist(false).user(user2).build());
-        movieRepository.save(Movie.builder().name("Movie in Watchlist 1").dateWatched(LocalDate.parse("2026-02-15")).inWatchlist(true).user(user2).build());
-        movieRepository.save(Movie.builder().name("Movie not in Watchlist 2").dateWatched(LocalDate.parse("2026-03-20")).inWatchlist(false).user(user2).build());
-        movieRepository.save(Movie.builder().name("Different movie in Watchlist 1").dateWatched(LocalDate.parse("2026-04-25")).inWatchlist(true).user(user2).build());
+        saveMovie("Movie not in Watchlist 1", "2026-01-10", false, "s1", user2);
+        saveMovie("Movie in Watchlist 1", "2026-02-15", true, "s1", user2);
+        saveMovie("Movie not in Watchlist 2", "2026-03-20", false, "s1", user2);
+        saveMovie("Different movie in Watchlist 1", "2026-04-25", true, "s1", user2);
 
-        Sort.Order order = new Sort.Order(Sort.Direction.ASC,"name");
+        Sort.Order order = new Sort.Order(Sort.Direction.ASC, "name");
         paging = PageRequest.of(0, 10, Sort.by(order));
     }
 
@@ -74,11 +75,28 @@ public class MovieRepositoryIntegrationTest {
     }
 
     @Test
-    void testCountMoviesWatchedPerYearMonthNative(){
-        int totalMovies = movieRepository.countMoviesWatchedPerYearMonthNative(user1.getId()).stream()
-                .mapToInt(result -> result.length)
-                .sum();
-        assertThat(totalMovies).isEqualTo(4);
+    void testCountMoviesWatchedPerYearMonthNative() {
+        List<MoviesPerMonthDTO> moviesPerMonth = movieRepository.countMoviesWatchedPerYearMonthNative(user1.getId());
+
+        var first = moviesPerMonth.getFirst();
+        assertThat(first.getCountTotal()).isEqualTo(1L);
+        assertThat(first.getYearMonth()).isEqualTo("2026-03");
+
+        var last = moviesPerMonth.getLast();
+        assertThat(last.getCountTotal()).isEqualTo(1L);
+        assertThat(last.getYearMonth()).isEqualTo("2026-01");
+    }
+
+    private void saveMovie(String name, String watchDate, boolean inWatchlist, String streamer, AppUser user) {
+        movieRepository.save(
+                Movie.builder()
+                        .name(name)
+                        .dateWatched(LocalDate.parse(watchDate))
+                        .inWatchlist(inWatchlist)
+                        .streamingService(streamer)
+                        .user(user)
+                        .build()
+        );
     }
 
 }
