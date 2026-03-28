@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>🎬 MovieTracker</title>
-  <link th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet"/>
+  <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </head>
 <body>
 <div th:replace="~{fragments/header}"></div>
@@ -20,10 +21,10 @@
     </tr>
     <tr th:each="monthStats : ${moviesPerMonth}">
       <td th:text="${monthStats.yearMonth}"></td>
-      <td th:text="${monthStats.countAmazon}"></td>
-      <td th:text="${monthStats.countNetflix}"></td>
-      <td th:text="${monthStats.countYoutube}"></td>
-      <td th:text="${monthStats.countTotal}"></td>
+      <td class="text-end" th:text="${monthStats.countAmazon}"></td>
+      <td class="text-end" th:text="${monthStats.countNetflix}"></td>
+      <td class="text-end" th:text="${monthStats.countYoutube}"></td>
+      <td class="text-end" th:text="${monthStats.countTotal}"></td>
     </tr>
   </table>
 </div>
