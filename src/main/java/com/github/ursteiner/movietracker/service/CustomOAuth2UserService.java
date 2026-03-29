@@ -19,15 +19,21 @@ import java.util.Map;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final UserRepository userRepository;
+    private final OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate;
 
     @Autowired
     public CustomOAuth2UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+        this.delegate = new DefaultOAuth2UserService();
+    }
+
+    CustomOAuth2UserService(UserRepository userRepository, OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate) {
+        this.userRepository = userRepository;
+        this.delegate = delegate;
     }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
         Integer providerUserId = oAuth2User.getAttribute("id");
