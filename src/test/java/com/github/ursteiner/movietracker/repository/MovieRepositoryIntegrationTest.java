@@ -69,7 +69,7 @@ public class MovieRepositoryIntegrationTest {
 
     @Test
     void testFindByUserIdAndInWatchlistTrueOrderByNameAsc() {
-        List<Movie> results = movieRepository.findByUserIdAndInWatchlistTrueOrderByNameAsc(user1.getId());
+        Page<Movie> results = movieRepository.findByUserIdAndInWatchlistTrue(user1.getId(), paging);
         assertThat(results).extracting(Movie::getName)
                 .containsExactly("Different movie in Watchlist 1", "Movie in Watchlist 1", "One more movie");
     }

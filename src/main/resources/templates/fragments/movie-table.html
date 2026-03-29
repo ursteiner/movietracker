@@ -3,15 +3,15 @@
         <tr>
             <th>
                 Name
-                <a th:href="@{${site}(searchName=${searchName},page=${page},sortBy='name',sortOrder='asc')}">
-                    <i class="bi bi-sort-alpha-down"></i>
+                <a th:href="@{${site}(searchName=${searchName},page=${page},sortBy='name',sortOrder=${sortOrder == 'asc' ? 'desc' : 'asc'})}">
+                    <i th:class="${sortOrder == 'asc' ? 'bi bi-sort-alpha-down': 'bi bi-sort-alpha-up-alt'}"></i>
                 </a>
             </th>
             <th>Streaming</th>
             <th th:if="${showDateWatched}">
                 Date watched
-                <a th:href="@{${site}(searchName=${searchName},page=${page},sortBy='dateWatched',sortOrder='desc')}">
-                    <i class="bi bi-sort-alpha-down-alt"></i>
+                <a th:href="@{${site}(searchName=${searchName},page=${page},sortBy='dateWatched',sortOrder=${sortOrder == 'asc' ? 'desc' : 'asc'})}">
+                    <i th:class="${sortOrder == 'asc' ? 'bi bi-sort-alpha-down': 'bi bi-sort-alpha-up-alt'}"></i>
                 </a>
             </th>
             <th>Actions</th>

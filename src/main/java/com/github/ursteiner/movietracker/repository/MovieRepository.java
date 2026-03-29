@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface MovieRepository extends JpaRepository<Movie, Long> {
     Page<Movie> findByUserIdAndInWatchlistFalse(Long appUserId, Pageable pageable);
     Page<Movie> findByUserIdAndNameContainingIgnoreCaseAndInWatchlistFalse(Long appUserId,String searchName, Pageable pageable);
-    List<Movie> findByUserIdAndInWatchlistTrueOrderByNameAsc(Long appUserId);
+    Page<Movie> findByUserIdAndInWatchlistTrue(Long appUserId, Pageable pageable);
     Optional<Movie> findByIdAndUserId(Long movieId, Long userId);
 
     @Query(value = """
