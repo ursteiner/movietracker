@@ -179,6 +179,7 @@ public class MovieController {
         Long currentUser = getCurrentUserId();
         List<MoviesPerMonthDTO> moviesPerMonth = movieRepository.countMoviesWatchedPerYearMonthNative(currentUser);
         model.addAttribute("moviesPerMonth", moviesPerMonth);
+        model.addAttribute("activePage", "statistic");
         return "statistic";
     }
 
