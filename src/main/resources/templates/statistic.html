@@ -14,10 +14,10 @@
   <table class="table">
     <tr>
       <th>Year-Month</th>
-      <th>Amazon</th>
-      <th>Netflix</th>
-      <th>Youtube</th>
-      <th>Total</th>
+      <th class="text-center">Amazon</th>
+      <th class="text-center">Netflix</th>
+      <th class="text-center">Youtube</th>
+      <th class="text-center">Total</th>
     </tr>
     <tr th:each="monthStats : ${moviesPerMonth}">
       <td th:text="${monthStats.yearMonth}"></td>
