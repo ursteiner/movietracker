@@ -12,13 +12,21 @@
 <div class="container">
     <h2>Delete Movie</h2>
     <form th:action="@{|/delete/${movie.id}|}" th:object="${movie}" method="post">
-        <label>Name:</label>
-        <label th:text="*{name}"></label>
-        <br>
-        <label>Date watched:</label>
-        <label th:text="${#temporals.format(movie.dateWatched, 'yyyy-MM-dd')}"></label>
-        <br/>
-        <br/>
+        <table class="table">
+            <tr>
+                <td>Name</td>
+                <td th:text="*{name}"></td>
+            </tr>
+            <tr>
+                <td>Streaming</td>
+                <td th:text="*{streamingService}"></td>
+            </tr>
+            <tr>
+                <td>Date watched</td>
+                <td th:text="${#temporals.format(movie.dateWatched, 'yyyy-MM-dd')}"></td>
+            </tr>
+        </table>
+
         <a th:if="${returnUrl}" th:href="${returnUrl}" class="btn btn-primary">Back to List</a>
         <button type="submit" class="btn btn-danger">Delete</button>
     </form>
