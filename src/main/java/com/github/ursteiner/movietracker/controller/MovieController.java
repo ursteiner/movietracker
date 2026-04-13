@@ -88,22 +88,28 @@ public class MovieController {
 
     @GetMapping("/watchlist")
     public String listWatchlistMovies(Model model,
+                                      @RequestParam("page") Optional<Integer> page,
                                       @RequestParam(defaultValue = "name") String sortBy,
                                       @RequestParam(defaultValue = "asc") String sortOrder) {
         Long currentUser = getCurrentUserId();
 
+        int currentPage = normalizePageNumber(page.orElse(1));
         AllowedSortField validatedSortField = normalizeSortBy(sortBy);
         Direction direction = normalizeSortOrder(sortOrder);
 
         Order order = new Order(direction, validatedSortField.property());
-        Pageable paging = PageRequest.of(0, Integer.MAX_VALUE, Sort.by(order));
+        Pageable paging = PageRequest.of(currentPage -1, PAGE_SIZE, Sort.by(order));
 
         Page<Movie> watchlistMoviePage = movieRepository.findByUserIdAndInWatchlistTrue(currentUser, paging);
         fillStreamingUrl(watchlistMoviePage.getContent());
 
+        model.addAttribute("watchlistMovies", watchlistMoviePage);
+        model.addAttribute("page", watchlistMoviePage.getNumber() + 1);
+        model.addAttribute("totalWatchlist", watchlistMoviePage.getTotalElements());
+        model.addAttribute("totalPages", watchlistMoviePage.getTotalPages() == 0 ? 1 : watchlistMoviePage.getTotalPages());
+        model.addAttribute("size", PAGE_SIZE);
         model.addAttribute("sortBy", validatedSortField.property());
         model.addAttribute("sortOrder", direction.name().toLowerCase());
-        model.addAttribute("watchlistMovies", watchlistMoviePage);
         model.addAttribute("activePage", "watchlist");
         return "list-watchlist-movies";
     }
