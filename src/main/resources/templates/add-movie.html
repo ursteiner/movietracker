@@ -5,6 +5,7 @@
     <title>🎬 MovieTracker</title>
     <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet" />
     <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <link th:href="@{/movietracker.css}" rel="stylesheet" />
 </head>
 <body>
     <div th:replace="~{fragments/header}"></div>
@@ -13,8 +14,11 @@
         <h2>Add New Movie</h2>
         <form th:action="@{/add}" th:object="${movie}" method="post">
             <div th:replace="~{fragments/movie-fields}"></div>
-            <a th:href="@{/}" class="btn btn-primary">Back to List</a>
-            <button type="submit" class="btn btn-success">Save</button>
+
+            <div class="d-flex align-items-center">
+                <a th:href="@{/}" class="button btn btn-primary">Back to List</a>
+                <button type="submit" class="button btn btn-success ms-auto">Save</button>
+            </div>
         </form>
     </div>
 </body>
