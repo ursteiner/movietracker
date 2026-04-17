@@ -7,8 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -22,11 +21,14 @@ public class Movie {
     private LocalDate dateWatched;
     @Transient
     private String streamingUrl;
-    private Boolean inWatchlist;
     private String streamingService;
     private String movieId;
     @ManyToOne
     @JoinColumn(name = "user_id")  // Foreign key in 'movie' table
     private AppUser user;
+    
+    public boolean isInWatchlist() {
+        return dateWatched == null;
+    }
 }
 

@@ -66,9 +66,9 @@ public class MovieController {
         Pageable paging = PageRequest.of(currentPage -1, PAGE_SIZE, Sort.by(order));
         Page<Movie> moviePage;
         if(searchName != null) {
-            moviePage = movieRepository.findByUserIdAndNameContainingIgnoreCaseAndInWatchlistFalse(currentUser, searchName, paging);
+            moviePage = movieRepository.findByUserIdAndNameContainingIgnoreCaseAndDateWatchedIsNotNull(currentUser, searchName, paging);
         }else{
-            moviePage = movieRepository.findByUserIdAndInWatchlistFalse(currentUser, paging);
+            moviePage = movieRepository.findByUserIdAndDateWatchedIsNotNull(currentUser, paging);
         }
 
         fillStreamingUrl(moviePage.getContent());
@@ -100,7 +100,7 @@ public class MovieController {
         Order order = new Order(direction, validatedSortField.property());
         Pageable paging = PageRequest.of(currentPage -1, PAGE_SIZE, Sort.by(order));
 
-        Page<Movie> watchlistMoviePage = movieRepository.findByUserIdAndInWatchlistTrue(currentUser, paging);
+        Page<Movie> watchlistMoviePage = movieRepository.findByUserIdAndDateWatchedIsNull(currentUser, paging);
         fillStreamingUrl(watchlistMoviePage.getContent());
 
         model.addAttribute("watchlistMovies", watchlistMoviePage);
@@ -151,7 +151,6 @@ public class MovieController {
 
         foundMovie.setName(movie.getName());
         foundMovie.setDateWatched(movie.getDateWatched());
-        foundMovie.setInWatchlist(movie.getInWatchlist());
         foundMovie.setMovieId(streamingUrlService.getMovieId(movie.getStreamingUrl()));
         foundMovie.setStreamingService(streamingUrlService.getServiceName(movie.getStreamingUrl()));
 
@@ -190,7 +189,7 @@ public class MovieController {
     }
 
     private String getListRedirectUrl(Movie movie) {
-        return Boolean.TRUE.equals(movie.getInWatchlist()) ? "redirect:/watchlist" : "redirect:/movies";
+        return movie.isInWatchlist() ? "redirect:/watchlist" : "redirect:/movies";
     }
 
     private void fillStreamingUrl(List<Movie> movies) {

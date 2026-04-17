@@ -35,41 +35,41 @@ public class MovieRepositoryIntegrationTest {
         user1 = AppUser.builder().username("testuser1").build();
         user1 = userRepository.save(user1);
 
-        saveMovie("Movie not in Watchlist 1", "2026-01-10", false, "s1", user1);
-        saveMovie("Movie in Watchlist 1", "2026-02-15", true, "s1", user1);
-        saveMovie("Movie not in Watchlist 2", "2026-03-20", false, "s1", user1);
-        saveMovie("Different movie in Watchlist 1", "2026-04-25", true, "s1", user1);
-        saveMovie("One more movie", "2026-04-25", true, "s1", user1);
+        saveMovie("Movie not in Watchlist 1", "2026-01-10", "s1", user1);
+        saveMovie("Movie in Watchlist 1", null, "s1", user1);
+        saveMovie("Movie not in Watchlist 2", "2026-03-20", "s1", user1);
+        saveMovie("Different movie in Watchlist 1", null, "s1", user1);
+        saveMovie("One more movie", null, "s1", user1);
 
         AppUser user2 = AppUser.builder().username("testuser2").build();
         user2 = userRepository.save(user2);
 
-        saveMovie("Movie not in Watchlist 1", "2026-01-10", false, "s1", user2);
-        saveMovie("Movie in Watchlist 1", "2026-02-15", true, "s1", user2);
-        saveMovie("Movie not in Watchlist 2", "2026-03-20", false, "s1", user2);
-        saveMovie("Different movie in Watchlist 1", "2026-04-25", true, "s1", user2);
+        saveMovie("Movie not in Watchlist 1", "2026-01-10", "s1", user2);
+        saveMovie("Movie in Watchlist 1", null, "s1", user2);
+        saveMovie("Movie not in Watchlist 2", "2026-03-20", "s1", user2);
+        saveMovie("Different movie in Watchlist 1", null, "s1", user2);
 
         Sort.Order order = new Sort.Order(Sort.Direction.ASC, "name");
         paging = PageRequest.of(0, 10, Sort.by(order));
     }
 
     @Test
-    void testFindByUserIdAndNameContainingIgnoreCaseAndInWatchlistFalse() {
-        Page<Movie> results = movieRepository.findByUserIdAndNameContainingIgnoreCaseAndInWatchlistFalse(user1.getId(), "mov", paging);
+    void testFindByUserIdAndNameContainingIgnoreCaseAndDateWatchedIsNotNull() {
+        Page<Movie> results = movieRepository.findByUserIdAndNameContainingIgnoreCaseAndDateWatchedIsNotNull(user1.getId(), "mov", paging);
         assertThat(results).extracting(Movie::getName)
                 .containsExactly("Movie not in Watchlist 1", "Movie not in Watchlist 2");
     }
 
     @Test
-    void testFindByUserIdAndInWatchlistFalse() {
-        Page<Movie> results = movieRepository.findByUserIdAndInWatchlistFalse(user1.getId(), paging);
+    void testFindByUserIdAndDateWatchedIsNotNull() {
+        Page<Movie> results = movieRepository.findByUserIdAndDateWatchedIsNotNull(user1.getId(), paging);
         assertThat(results).extracting(Movie::getName)
                 .containsExactly("Movie not in Watchlist 1", "Movie not in Watchlist 2");
     }
 
     @Test
     void testFindByUserIdAndInWatchlistTrueOrderByNameAsc() {
-        Page<Movie> results = movieRepository.findByUserIdAndInWatchlistTrue(user1.getId(), paging);
+        Page<Movie> results = movieRepository.findByUserIdAndDateWatchedIsNull(user1.getId(), paging);
         assertThat(results).extracting(Movie::getName)
                 .containsExactly("Different movie in Watchlist 1", "Movie in Watchlist 1", "One more movie");
     }
@@ -87,12 +87,11 @@ public class MovieRepositoryIntegrationTest {
         assertThat(last.getYearMonth()).isEqualTo("2026-01");
     }
 
-    private void saveMovie(String name, String watchDate, boolean inWatchlist, String streamer, AppUser user) {
+    private void saveMovie(String name, String watchDate, String streamer, AppUser user) {
         movieRepository.save(
                 Movie.builder()
                         .name(name)
                         .dateWatched(LocalDate.parse(watchDate))
-                        .inWatchlist(inWatchlist)
                         .streamingService(streamer)
                         .user(user)
                         .build()

@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MovieRepository extends JpaRepository<Movie, Long> {
-    Page<Movie> findByUserIdAndInWatchlistFalse(Long appUserId, Pageable pageable);
-    Page<Movie> findByUserIdAndNameContainingIgnoreCaseAndInWatchlistFalse(Long appUserId,String searchName, Pageable pageable);
-    Page<Movie> findByUserIdAndInWatchlistTrue(Long appUserId, Pageable pageable);
+    Page<Movie> findByUserIdAndDateWatchedIsNotNull(Long appUserId, Pageable pageable);
+    Page<Movie> findByUserIdAndNameContainingIgnoreCaseAndDateWatchedIsNotNull(Long appUserId,String searchName, Pageable pageable);
+    Page<Movie> findByUserIdAndDateWatchedIsNull(Long appUserId, Pageable pageable);
     Optional<Movie> findByIdAndUserId(Long movieId, Long userId);
 
     @Query(value = """
@@ -26,8 +26,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
                 COUNT(CASE WHEN streaming_service = 'Youtube' THEN 1 END) AS countYoutube,
                 COUNT(*) as countTotal
             FROM movie
-            WHERE in_watchlist = false
-                AND date_watched IS NOT NULL
+            WHERE date_watched IS NOT NULL
                 AND user_id = :userId
             GROUP BY yearMonth
             ORDER BY yearMonth DESC;
