@@ -91,7 +91,7 @@ public class MovieRepositoryIntegrationTest {
         movieRepository.save(
                 Movie.builder()
                         .name(name)
-                        .dateWatched(LocalDate.parse(watchDate))
+                        .dateWatched(watchDate == null ? null : LocalDate.parse(watchDate))
                         .streamingService(streamer)
                         .user(user)
                         .build()
