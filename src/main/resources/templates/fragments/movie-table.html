@@ -7,14 +7,14 @@
                     <i th:class="${sortOrder == 'asc' ? 'bi bi-sort-alpha-down': 'bi bi-sort-alpha-up-alt'}"></i>
                 </a>
             </th>
-            <th>Streaming</th>
-            <th th:if="${showDateWatched}">
+            <th style="width:150px;">Streaming</th>
+            <th style="width:150px;" th:if="${showDateWatched}">
                 Date watched
                 <a th:href="@{${site}(searchName=${searchName},page=${page},sortBy='dateWatched',sortOrder=${sortOrder == 'asc' ? 'desc' : 'asc'})}">
                     <i th:class="${sortOrder == 'asc' ? 'bi bi-sort-alpha-down': 'bi bi-sort-alpha-up-alt'}"></i>
                 </a>
             </th>
-            <th>Actions</th>
+            <th style="width:120px;">Actions</th>
         </tr>
         <tr th:each="movie : ${movies}">
             <td><a th:href="${movie.streamingUrl}" th:text="${movie.name}" target="_blank"></a></td>
