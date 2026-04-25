@@ -4,19 +4,22 @@
             <th>
                 Name
                 <a th:href="@{${site}(searchName=${searchName},page=${page},sortBy='name',sortOrder=${sortOrder == 'asc' ? 'desc' : 'asc'})}">
-                    <i th:class="${sortOrder == 'asc' ? 'bi bi-sort-alpha-down': 'bi bi-sort-alpha-up-alt'}"></i>
+                    <i th:if="${sortBy == 'name'}" th:class="${sortOrder == 'asc' ? 'bi bi-sort-alpha-down': 'bi bi-sort-alpha-up-alt'}"></i>
+                    <i th:if="${sortBy != 'name'}" class="bi bi-arrow-down-up"></i>
                 </a>
             </th>
             <th style="width:150px;">
                 Streaming
                 <a th:href="@{${site}(searchName=${searchName},page=${page},sortBy='streamingService',sortOrder=${sortOrder == 'asc' ? 'desc' : 'asc'})}">
-                    <i th:class="${sortOrder == 'asc' ? 'bi bi-sort-alpha-down': 'bi bi-sort-alpha-up-alt'}"></i>
+                    <i th:if="${sortBy == 'streamingService'}" th:class="${sortOrder == 'asc' ? 'bi bi-sort-alpha-down': 'bi bi-sort-alpha-up-alt'}"></i>
+                    <i th:if="${sortBy != 'streamingService'}" class="bi bi-arrow-down-up"></i>
                 </a>
             </th>
             <th style="width:150px;" th:if="${showDateWatched}">
                 Date watched
                 <a th:href="@{${site}(searchName=${searchName},page=${page},sortBy='dateWatched',sortOrder=${sortOrder == 'asc' ? 'desc' : 'asc'})}">
-                    <i th:class="${sortOrder == 'asc' ? 'bi bi-sort-alpha-down': 'bi bi-sort-alpha-up-alt'}"></i>
+                    <i th:if="${sortBy == 'dateWatched'}" th:class="${sortOrder == 'asc' ? 'bi bi-sort-alpha-down': 'bi bi-sort-alpha-up-alt'}"></i>
+                    <i th:if="${sortBy != 'dateWatched'}" class="bi bi-arrow-down-up"></i>
                 </a>
             </th>
             <th style="width:120px;">Actions</th>
