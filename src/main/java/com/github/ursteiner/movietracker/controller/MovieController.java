@@ -57,13 +57,7 @@ public class MovieController {
 
         Long currentUser = getCurrentUserId();
 
-        int currentPage = normalizePageNumber(page.orElse(1));
-        AllowedSortField validatedSortField = normalizeSortBy(sortBy);
-        Direction direction = normalizeSortOrder(sortOrder);
-
-        Order order = new Order(direction, validatedSortField.property());
-
-        Pageable paging = PageRequest.of(currentPage -1, PAGE_SIZE, Sort.by(order));
+        Pageable paging = createPageable(page, sortBy, sortOrder);
         Page<Movie> moviePage;
         if(searchName != null) {
             moviePage = movieRepository.findByUserIdAndNameContainingIgnoreCaseAndDateWatchedIsNotNull(currentUser, searchName, paging);
@@ -76,12 +70,9 @@ public class MovieController {
         model.addAttribute("movies", moviePage.getContent());
         model.addAttribute("page", moviePage.getNumber() + 1);
         model.addAttribute("totalMovies", moviePage.getTotalElements());
-        model.addAttribute("totalPages", moviePage.getTotalPages() == 0 ? 1 : moviePage.getTotalPages());
-        model.addAttribute("size", PAGE_SIZE);
-        model.addAttribute("sortBy", validatedSortField.property());
-        model.addAttribute("sortOrder", direction.name().toLowerCase());
         model.addAttribute("activePage", "list");
         model.addAttribute("searchName", searchName);
+        addPagingAttributes(model, paging, moviePage.getTotalPages());
 
         return "list-movies";
     }
@@ -93,24 +84,16 @@ public class MovieController {
                                       @RequestParam(defaultValue = "asc") String sortOrder) {
         Long currentUser = getCurrentUserId();
 
-        int currentPage = normalizePageNumber(page.orElse(1));
-        AllowedSortField validatedSortField = normalizeSortBy(sortBy);
-        Direction direction = normalizeSortOrder(sortOrder);
-
-        Order order = new Order(direction, validatedSortField.property());
-        Pageable paging = PageRequest.of(currentPage -1, PAGE_SIZE, Sort.by(order));
-
+        Pageable paging = createPageable(page, sortBy, sortOrder);
         Page<Movie> watchlistMoviePage = movieRepository.findByUserIdAndDateWatchedIsNull(currentUser, paging);
         fillStreamingUrl(watchlistMoviePage.getContent());
 
         model.addAttribute("watchlistMovies", watchlistMoviePage);
         model.addAttribute("page", watchlistMoviePage.getNumber() + 1);
         model.addAttribute("totalWatchlist", watchlistMoviePage.getTotalElements());
-        model.addAttribute("totalPages", watchlistMoviePage.getTotalPages() == 0 ? 1 : watchlistMoviePage.getTotalPages());
-        model.addAttribute("size", PAGE_SIZE);
-        model.addAttribute("sortBy", validatedSortField.property());
-        model.addAttribute("sortOrder", direction.name().toLowerCase());
         model.addAttribute("activePage", "watchlist");
+        addPagingAttributes(model, paging, watchlistMoviePage.getTotalPages());
+
         return "list-watchlist-movies";
     }
 
@@ -210,6 +193,22 @@ public class MovieController {
 
     static Direction normalizeSortOrder(String sortOrder) {
         return "asc".equalsIgnoreCase(sortOrder) ? Direction.ASC : Direction.DESC;
+    }
+
+    private Pageable createPageable(Optional<Integer> page, String sortBy, String sortOrder) {
+        int currentPage = normalizePageNumber(page.orElse(1));
+        AllowedSortField validatedSortField = normalizeSortBy(sortBy);
+        Direction direction = normalizeSortOrder(sortOrder);
+
+        Order order = new Order(direction, validatedSortField.property());
+        return PageRequest.of(currentPage -1, PAGE_SIZE, Sort.by(order));
+    }
+
+    private void addPagingAttributes(Model model, Pageable paging, int pages) {
+        model.addAttribute("totalPages", pages == 0 ? 1 : pages);
+        model.addAttribute("size", PAGE_SIZE);
+        model.addAttribute("sortBy", paging.getSort().get().findFirst().map(Order::getProperty).orElse("dateWatched"));
+        model.addAttribute("sortOrder", paging.getSort().get().findFirst().map(Order::getDirection).orElse(Direction.DESC).name().toLowerCase());
     }
 
     public static Long getCurrentUserId() {
