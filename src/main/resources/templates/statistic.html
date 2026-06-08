@@ -26,6 +26,13 @@
       <td class="text-end" th:text="${monthStats.countYoutube}"></td>
       <td class="text-end" th:text="${monthStats.countTotal}"></td>
     </tr>
+    <tr class="table-active">
+      <td>Totals:</td>
+      <td class="text-end" th:text="${#aggregates.sum(moviesPerMonth.![countAmazon])}"></td>
+      <td class="text-end" th:text="${#aggregates.sum(moviesPerMonth.![countNetflix])}"></td>
+      <td class="text-end" th:text="${#aggregates.sum(moviesPerMonth.![countYoutube])}"></td>
+      <td class="text-end" th:text="${#aggregates.sum(moviesPerMonth.![countTotal])}"></td>
+    </tr>
   </table>
 </div>
 </body>
