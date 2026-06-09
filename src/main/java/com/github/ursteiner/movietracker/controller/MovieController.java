@@ -2,6 +2,7 @@ package com.github.ursteiner.movietracker.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.github.ursteiner.movietracker.model.Movie;
 import com.github.ursteiner.movietracker.model.MoviesPerMonthDTO;
@@ -55,14 +56,14 @@ public class MovieController {
                              @RequestParam(defaultValue = "dateWatched") String sortBy,
                              @RequestParam(defaultValue = "desc") String sortOrder) {
 
-        Long currentUser = getCurrentUserId();
+        UUID currentUserId = getCurrentUserId();
 
         Pageable paging = createPageable(page, sortBy, sortOrder);
         Page<Movie> moviePage;
         if(searchName != null) {
-            moviePage = movieRepository.findByUserIdAndNameContainingIgnoreCaseAndDateWatchedIsNotNull(currentUser, searchName, paging);
+            moviePage = movieRepository.findByUserIdAndNameContainingIgnoreCaseAndDateWatchedIsNotNull(currentUserId, searchName, paging);
         }else{
-            moviePage = movieRepository.findByUserIdAndDateWatchedIsNotNull(currentUser, paging);
+            moviePage = movieRepository.findByUserIdAndDateWatchedIsNotNull(currentUserId, paging);
         }
 
         fillStreamingUrl(moviePage.getContent());
@@ -82,7 +83,7 @@ public class MovieController {
                                       @RequestParam("page") Optional<Integer> page,
                                       @RequestParam(defaultValue = "name") String sortBy,
                                       @RequestParam(defaultValue = "asc") String sortOrder) {
-        Long currentUser = getCurrentUserId();
+        UUID currentUser = getCurrentUserId();
 
         Pageable paging = createPageable(page, sortBy, sortOrder);
         Page<Movie> watchlistMoviePage = movieRepository.findByUserIdAndDateWatchedIsNull(currentUser, paging);
@@ -105,19 +106,19 @@ public class MovieController {
 
     @PostMapping("/add")
     public String addMovie(Movie movie) {
-        Long currentUser = getCurrentUserId();
+        UUID currentUserId = getCurrentUserId();
 
         movie.setMovieId(streamingUrlService.getMovieId(movie.getStreamingUrl()));
         movie.setStreamingService(streamingUrlService.getServiceName(movie.getStreamingUrl()));
-        movie.setUser(userRepository.findById(currentUser).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + currentUser)));
+        movie.setUser(userRepository.findById(currentUserId).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + currentUserId)));
         movieRepository.save(movie);
         return getListRedirectUrl(movie);
     }
 
     @GetMapping("/edit/{id}")
-    public String showUpdateForm(@PathVariable("id") long id, @RequestParam(required = false) String returnUrl, Model model) {
-        Long currentUser = getCurrentUserId();
-        Movie movie = movieRepository.findByIdAndUserId(id, currentUser)
+    public String showUpdateForm(@PathVariable("id") UUID id, @RequestParam(required = false) String returnUrl, Model model) {
+        UUID currentUserId = getCurrentUserId();
+        Movie movie = movieRepository.findByIdAndUserId(id, currentUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
 
         fillStreamingUrl(movie);
@@ -127,9 +128,9 @@ public class MovieController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateMovie(@PathVariable("id") long id, Movie movie) {
-        Long currentUser = getCurrentUserId();
-        Movie foundMovie = movieRepository.findByIdAndUserId(id, currentUser)
+    public String updateMovie(@PathVariable("id") UUID id, Movie movie) {
+        UUID currentUserId = getCurrentUserId();
+        Movie foundMovie = movieRepository.findByIdAndUserId(id, currentUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
 
         foundMovie.setName(movie.getName());
@@ -142,9 +143,9 @@ public class MovieController {
     }
 
     @GetMapping("/delete/{id}")
-    public String showDeleteForm(@PathVariable("id") long id, @RequestParam(required = false) String returnUrl, Model model) {
-        Long currentUser = getCurrentUserId();
-        Movie movie = movieRepository.findByIdAndUserId(id, currentUser)
+    public String showDeleteForm(@PathVariable("id") UUID id, @RequestParam(required = false) String returnUrl, Model model) {
+        UUID currentUserId = getCurrentUserId();
+        Movie movie = movieRepository.findByIdAndUserId(id, currentUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
 
         model.addAttribute("movie", movie);
@@ -153,9 +154,9 @@ public class MovieController {
     }
 
     @PostMapping("/delete/{id}")
-    public String deleteMovie(@PathVariable("id") long id) {
-        Long currentUser = getCurrentUserId();
-        Movie movie = movieRepository.findByIdAndUserId(id, currentUser)
+    public String deleteMovie(@PathVariable("id") UUID id) {
+        UUID currentUserId = getCurrentUserId();
+        Movie movie = movieRepository.findByIdAndUserId(id, currentUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
 
         movieRepository.delete(movie);
@@ -164,7 +165,7 @@ public class MovieController {
 
     @GetMapping("/statistic")
     public String showStatistic(Model model) {
-        Long currentUser = getCurrentUserId();
+        UUID currentUser = getCurrentUserId();
         List<MoviesPerMonthDTO> moviesPerMonth = movieRepository.countMoviesWatchedPerYearMonthNative(currentUser);
         model.addAttribute("moviesPerMonth", moviesPerMonth);
         model.addAttribute("activePage", "statistic");
@@ -211,7 +212,7 @@ public class MovieController {
         model.addAttribute("sortOrder", paging.getSort().get().findFirst().map(Order::getDirection).orElse(Direction.DESC).name().toLowerCase());
     }
 
-    public static Long getCurrentUserId() {
+    public static UUID getCurrentUserId() {
        OAuth2User currentUser = getCurrentUser();
        if (currentUser != null) {
            return currentUser.getAttribute("appUserId");

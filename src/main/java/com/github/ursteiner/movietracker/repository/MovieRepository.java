@@ -11,12 +11,13 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface MovieRepository extends JpaRepository<Movie, Long> {
-    Page<Movie> findByUserIdAndDateWatchedIsNotNull(Long appUserId, Pageable pageable);
-    Page<Movie> findByUserIdAndNameContainingIgnoreCaseAndDateWatchedIsNotNull(Long appUserId,String searchName, Pageable pageable);
-    Page<Movie> findByUserIdAndDateWatchedIsNull(Long appUserId, Pageable pageable);
-    Optional<Movie> findByIdAndUserId(Long movieId, Long userId);
+    Page<Movie> findByUserIdAndDateWatchedIsNotNull(UUID appUserId, Pageable pageable);
+    Page<Movie> findByUserIdAndNameContainingIgnoreCaseAndDateWatchedIsNotNull(UUID appUserId,String searchName, Pageable pageable);
+    Page<Movie> findByUserIdAndDateWatchedIsNull(UUID appUserId, Pageable pageable);
+    Optional<Movie> findByIdAndUserId(UUID movieId, UUID userId);
 
     @Query(value = """
             SELECT
@@ -32,5 +33,5 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
             ORDER BY yearMonth DESC;
             """,
             nativeQuery = true)
-    List<MoviesPerMonthDTO> countMoviesWatchedPerYearMonthNative(@Param("userId") Long userId);
+    List<MoviesPerMonthDTO> countMoviesWatchedPerYearMonthNative(@Param("userId") UUID userId);
 }

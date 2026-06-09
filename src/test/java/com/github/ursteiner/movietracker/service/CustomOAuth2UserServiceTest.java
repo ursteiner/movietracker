@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -41,7 +42,7 @@ class CustomOAuth2UserServiceTest {
         customOAuth2UserService = new CustomOAuth2UserService(userRepository, delegateService);
 
         testUser = new AppUser();
-        testUser.setId(1L);
+        testUser.setId(UUID.randomUUID());
         testUser.setGithubId(12345);
         testUser.setUsername("testuser");
         testUser.setEmail("test@example.com");
@@ -59,7 +60,7 @@ class CustomOAuth2UserServiceTest {
         verify(userRepository).findUserByGithubId(12345);
         verify(userRepository, never()).save(any());
         assertThat(result).isNotNull();
-        assertThat((Long) result.getAttribute("appUserId")).isEqualTo(1L);
+        assertThat((UUID) result.getAttribute("appUserId")).isEqualTo(testUser.getId());
     }
 
     @Test
@@ -81,14 +82,14 @@ class CustomOAuth2UserServiceTest {
         assertThat(savedUser.getEmail()).isEqualTo("test@example.com");
         assertThat(savedUser.getRegistrationDate()).isNotNull();
         assertThat(result).isNotNull();
-        assertThat((Long) result.getAttribute("appUserId")).isEqualTo(1L);
+        assertThat((UUID) result.getAttribute("appUserId")).isEqualTo(testUser.getId());
     }
 
     @Test
     void loadUser_ShouldHandleNullEmail_WhenNotProvidedByProvider() {
         when(userRepository.findUserByGithubId(12345)).thenReturn(null);
         AppUser userWithoutEmail = new AppUser();
-        userWithoutEmail.setId(1L);
+        userWithoutEmail.setId(UUID.randomUUID());
         userWithoutEmail.setGithubId(12345);
         userWithoutEmail.setUsername("userWithoutEmail");
         userWithoutEmail.setEmail(null);

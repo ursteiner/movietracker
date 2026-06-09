@@ -32,7 +32,7 @@ public class MovieRepositoryIntegrationTest {
         movieRepository.deleteAll();
         userRepository.deleteAll();
 
-        user1 = AppUser.builder().username("testuser1").build();
+        user1 = AppUser.builder().username("testuser1").githubId(1).build();
         user1 = userRepository.save(user1);
 
         saveMovie("Movie not in Watchlist 1", "2026-01-10", "s1", user1);
@@ -41,7 +41,7 @@ public class MovieRepositoryIntegrationTest {
         saveMovie("Different movie in Watchlist 1", null, "s1", user1);
         saveMovie("One more movie", null, "s1", user1);
 
-        AppUser user2 = AppUser.builder().username("testuser2").build();
+        AppUser user2 = AppUser.builder().username("testuser2").githubId(2).build();
         user2 = userRepository.save(user2);
 
         saveMovie("Movie not in Watchlist 1", "2026-01-10", "s1", user2);

@@ -3,6 +3,8 @@ package com.github.ursteiner.movietracker.repository;
 import com.github.ursteiner.movietracker.model.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends JpaRepository<AppUser, Long> {
+import java.util.UUID;
+
+public interface UserRepository extends JpaRepository<AppUser, UUID> {
     AppUser findUserByGithubId(Integer githubId);
 }
