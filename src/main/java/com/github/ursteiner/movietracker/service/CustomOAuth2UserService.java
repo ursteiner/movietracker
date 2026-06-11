@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,8 +41,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String userName = oAuth2User.getAttribute("login");
         String email = oAuth2User.getAttribute("email");
 
-        // Lookup or create user
-        AppUser appUser = processOAuthLogin(providerUserId, email, userName);
+        AppUser appUser = createOrGetUser(providerUserId, email, userName);
 
         Map<String, Object> attributes = new HashMap<>(oAuth2User.getAttributes());
         attributes.put("appUserId", appUser.getId());
@@ -53,18 +53,18 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         );
     }
 
-    private AppUser processOAuthLogin(Integer providerUserId, String email, String userName) {
+    private AppUser createOrGetUser(Integer providerUserId, String email, String userName) {
         AppUser user = userRepository.findUserByGithubId(providerUserId);
 
         if (user == null) {
-            AppUser newUser = new AppUser();
-            newUser.setGithubId(providerUserId);
-            newUser.setUsername(userName);
-            newUser.setEmail(email);
-            newUser.setRegistrationDate(LocalDate.now());
-            return userRepository.save(newUser);
+            user = new AppUser();
+            user.setGithubId(providerUserId);
+            user.setUsername(userName);
+            user.setEmail(email);
+            user.setRegistrationDate(LocalDate.now());
         }
 
-        return user;
+        user.setLastLogin(LocalDateTime.now());
+        return userRepository.save(user);
     }
 }

@@ -172,6 +172,11 @@ public class MovieController {
         return "statistic";
     }
 
+    @GetMapping("/user")
+    public String showUser() {
+        return "user";
+    }
+
     private String getListRedirectUrl(Movie movie) {
         return movie.isInWatchlist() ? "redirect:/watchlist" : "redirect:/movies";
     }
