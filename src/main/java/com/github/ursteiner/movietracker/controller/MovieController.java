@@ -4,12 +4,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.github.ursteiner.movietracker.model.AppUser;
 import com.github.ursteiner.movietracker.model.Movie;
 import com.github.ursteiner.movietracker.model.MoviesPerMonthDTO;
 import com.github.ursteiner.movietracker.repository.MovieRepository;
 import com.github.ursteiner.movietracker.repository.UserRepository;
 import com.github.ursteiner.movietracker.service.StreamingUrlService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,9 +21,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -165,16 +171,35 @@ public class MovieController {
 
     @GetMapping("/statistic")
     public String showStatistic(Model model) {
-        UUID currentUser = getCurrentUserId();
-        List<MoviesPerMonthDTO> moviesPerMonth = movieRepository.countMoviesWatchedPerYearMonthNative(currentUser);
+        UUID currentUserId = getCurrentUserId();
+        List<MoviesPerMonthDTO> moviesPerMonth = movieRepository.countMoviesWatchedPerYearMonthNative(currentUserId);
         model.addAttribute("moviesPerMonth", moviesPerMonth);
         model.addAttribute("activePage", "statistic");
         return "statistic";
     }
 
     @GetMapping("/user")
-    public String showUser() {
+    public String showUser(Model model) {
+        UUID currentUserId = getCurrentUserId();
+        AppUser user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        model.addAttribute("user", user);
+        model.addAttribute("activePage", "user");
         return "user";
+    }
+
+    @PostMapping("/deleteUser")
+    @Transactional
+    public String deleteUser(HttpServletRequest request, HttpServletResponse response) {
+        UUID currentUserId = getCurrentUserId();
+        movieRepository.deleteByUserId(currentUserId);
+        userRepository.deleteById(currentUserId);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        new SecurityContextLogoutHandler().logout(request, response, auth);
+
+        return "redirect:/";
     }
 
     private String getListRedirectUrl(Movie movie) {

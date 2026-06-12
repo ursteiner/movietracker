@@ -11,16 +11,24 @@
 
 <div class="container">
     <h2>User Info</h2>
-    <form th:action="@{|/delete/}" method="post">
+    <form th:action="@{|/deleteUser|}" th:object="${user}" method="post">
         <table class="table">
             <tr>
                 <td>Name</td>
-                <td th:text="${#authentication.principal.getAttribute('login')}"></td>
+                <td th:text="*{username}"></td>
+            </tr>
+            <tr>
+                <td>Email</td>
+                <td th:text="*{email}"></td>
+            </tr>
+            <tr>
+                <td>Registration date</td>
+                <td th:text="*{registrationDate}"></td>
             </tr>
         </table>
 
         <div class="d-flex align-items-center">
-            <button type="submit" class="button btn btn-danger ms-auto">Delete account</button>
+            <button type="submit" class="button btn btn-danger ms-auto">Delete User</button>
         </div>
     </form>
 </div>
