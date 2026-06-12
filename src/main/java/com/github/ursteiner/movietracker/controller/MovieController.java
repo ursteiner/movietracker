@@ -1,53 +1,44 @@
 package com.github.ursteiner.movietracker.controller;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import com.github.ursteiner.movietracker.model.AppUser;
 import com.github.ursteiner.movietracker.model.Movie;
-import com.github.ursteiner.movietracker.model.MoviesPerMonthDTO;
-import com.github.ursteiner.movietracker.repository.MovieRepository;
-import com.github.ursteiner.movietracker.repository.UserRepository;
-import com.github.ursteiner.movietracker.service.StreamingUrlService;
-import jakarta.persistence.EntityNotFoundException;
+import com.github.ursteiner.movietracker.security.CurrentUserProvider;
+import com.github.ursteiner.movietracker.service.MovieService;
+import com.github.ursteiner.movietracker.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 public class MovieController {
 
     private static final int PAGE_SIZE = 15;
 
-    private final MovieRepository movieRepository;
-    private final StreamingUrlService streamingUrlService;
-    private final UserRepository userRepository;
+    private final MovieService movieService;
+    private final UserService userService;
+    private final CurrentUserProvider currentUserProvider;
 
-    @Autowired
-    public MovieController(MovieRepository movieRepository, StreamingUrlService streamingUrlService, UserRepository userRepository){
-        this.movieRepository = movieRepository;
-        this.streamingUrlService = streamingUrlService;
-        this.userRepository = userRepository;
+    public MovieController(MovieService movieService, UserService userService, CurrentUserProvider currentUserProvider) {
+        this.movieService = movieService;
+        this.userService = userService;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @GetMapping("/")
@@ -62,17 +53,8 @@ public class MovieController {
                              @RequestParam(defaultValue = "dateWatched") String sortBy,
                              @RequestParam(defaultValue = "desc") String sortOrder) {
 
-        UUID currentUserId = getCurrentUserId();
-
         Pageable paging = createPageable(page, sortBy, sortOrder);
-        Page<Movie> moviePage;
-        if(searchName != null) {
-            moviePage = movieRepository.findByUserIdAndNameContainingIgnoreCaseAndDateWatchedIsNotNull(currentUserId, searchName, paging);
-        }else{
-            moviePage = movieRepository.findByUserIdAndDateWatchedIsNotNull(currentUserId, paging);
-        }
-
-        fillStreamingUrl(moviePage.getContent());
+        Page<Movie> moviePage = movieService.getWatchedMovies(currentUserProvider.getCurrentUserId(), searchName, paging);
 
         model.addAttribute("movies", moviePage.getContent());
         model.addAttribute("page", moviePage.getNumber() + 1);
@@ -89,11 +71,8 @@ public class MovieController {
                                       @RequestParam("page") Optional<Integer> page,
                                       @RequestParam(defaultValue = "name") String sortBy,
                                       @RequestParam(defaultValue = "asc") String sortOrder) {
-        UUID currentUser = getCurrentUserId();
-
         Pageable paging = createPageable(page, sortBy, sortOrder);
-        Page<Movie> watchlistMoviePage = movieRepository.findByUserIdAndDateWatchedIsNull(currentUser, paging);
-        fillStreamingUrl(watchlistMoviePage.getContent());
+        Page<Movie> watchlistMoviePage = movieService.getWatchlistMovies(currentUserProvider.getCurrentUserId(), paging);
 
         model.addAttribute("watchlistMovies", watchlistMoviePage);
         model.addAttribute("page", watchlistMoviePage.getNumber() + 1);
@@ -112,22 +91,13 @@ public class MovieController {
 
     @PostMapping("/add")
     public String addMovie(Movie movie) {
-        UUID currentUserId = getCurrentUserId();
-
-        movie.setMovieId(streamingUrlService.getMovieId(movie.getStreamingUrl()));
-        movie.setStreamingService(streamingUrlService.getServiceName(movie.getStreamingUrl()));
-        movie.setUser(userRepository.findById(currentUserId).orElseThrow(() -> new EntityNotFoundException("User not found with id: " + currentUserId)));
-        movieRepository.save(movie);
-        return getListRedirectUrl(movie);
+        Movie saved = movieService.addMovie(currentUserProvider.getCurrentUserId(), movie);
+        return getListRedirectUrl(saved);
     }
 
     @GetMapping("/edit/{id}")
     public String showUpdateForm(@PathVariable("id") UUID id, @RequestParam(required = false) String returnUrl, Model model) {
-        UUID currentUserId = getCurrentUserId();
-        Movie movie = movieRepository.findByIdAndUserId(id, currentUserId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
-
-        fillStreamingUrl(movie);
+        Movie movie = movieService.getMovieForEdit(currentUserProvider.getCurrentUserId(), id);
         model.addAttribute("movie", movie);
         model.addAttribute("returnUrl", returnUrl);
         return "update-movie";
@@ -135,25 +105,13 @@ public class MovieController {
 
     @PostMapping("/update/{id}")
     public String updateMovie(@PathVariable("id") UUID id, Movie movie) {
-        UUID currentUserId = getCurrentUserId();
-        Movie foundMovie = movieRepository.findByIdAndUserId(id, currentUserId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
-
-        foundMovie.setName(movie.getName());
-        foundMovie.setDateWatched(movie.getDateWatched());
-        foundMovie.setMovieId(streamingUrlService.getMovieId(movie.getStreamingUrl()));
-        foundMovie.setStreamingService(streamingUrlService.getServiceName(movie.getStreamingUrl()));
-
-        movieRepository.save(foundMovie);
-        return getListRedirectUrl(foundMovie);
+        Movie updated = movieService.updateMovie(currentUserProvider.getCurrentUserId(), id, movie);
+        return getListRedirectUrl(updated);
     }
 
     @GetMapping("/delete/{id}")
     public String showDeleteForm(@PathVariable("id") UUID id, @RequestParam(required = false) String returnUrl, Model model) {
-        UUID currentUserId = getCurrentUserId();
-        Movie movie = movieRepository.findByIdAndUserId(id, currentUserId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
-
+        Movie movie = movieService.getOwnedMovie(currentUserProvider.getCurrentUserId(), id);
         model.addAttribute("movie", movie);
         model.addAttribute("returnUrl", returnUrl);
         return "delete-movie";
@@ -161,40 +119,28 @@ public class MovieController {
 
     @PostMapping("/delete/{id}")
     public String deleteMovie(@PathVariable("id") UUID id) {
-        UUID currentUserId = getCurrentUserId();
-        Movie movie = movieRepository.findByIdAndUserId(id, currentUserId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
-
-        movieRepository.delete(movie);
+        Movie movie = movieService.deleteMovie(currentUserProvider.getCurrentUserId(), id);
         return getListRedirectUrl(movie);
     }
 
     @GetMapping("/statistic")
     public String showStatistic(Model model) {
-        UUID currentUserId = getCurrentUserId();
-        List<MoviesPerMonthDTO> moviesPerMonth = movieRepository.countMoviesWatchedPerYearMonthNative(currentUserId);
-        model.addAttribute("moviesPerMonth", moviesPerMonth);
+        model.addAttribute("moviesPerMonth", movieService.getMoviesPerMonth(currentUserProvider.getCurrentUserId()));
         model.addAttribute("activePage", "statistic");
         return "statistic";
     }
 
     @GetMapping("/user")
     public String showUser(Model model) {
-        UUID currentUserId = getCurrentUserId();
-        AppUser user = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-
+        AppUser user = userService.getUser(currentUserProvider.getCurrentUserId());
         model.addAttribute("user", user);
         model.addAttribute("activePage", "user");
         return "user";
     }
 
     @PostMapping("/deleteUser")
-    @Transactional
     public String deleteUser(HttpServletRequest request, HttpServletResponse response) {
-        UUID currentUserId = getCurrentUserId();
-        movieRepository.deleteByUserId(currentUserId);
-        userRepository.deleteById(currentUserId);
+        userService.deleteAccount(currentUserProvider.getCurrentUserId());
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         new SecurityContextLogoutHandler().logout(request, response, auth);
@@ -204,14 +150,6 @@ public class MovieController {
 
     private String getListRedirectUrl(Movie movie) {
         return movie.isInWatchlist() ? "redirect:/watchlist" : "redirect:/movies";
-    }
-
-    private void fillStreamingUrl(List<Movie> movies) {
-        movies.forEach(this::fillStreamingUrl);
-    }
-
-    private void fillStreamingUrl(Movie movie) {
-        movie.setStreamingUrl(streamingUrlService.getMovieWatchUrl(movie.getStreamingService(), movie.getMovieId()));
     }
 
     static int normalizePageNumber(int page) {
@@ -240,21 +178,5 @@ public class MovieController {
         model.addAttribute("size", PAGE_SIZE);
         model.addAttribute("sortBy", paging.getSort().get().findFirst().map(Order::getProperty).orElse("dateWatched"));
         model.addAttribute("sortOrder", paging.getSort().get().findFirst().map(Order::getDirection).orElse(Direction.DESC).name().toLowerCase());
-    }
-
-    public static UUID getCurrentUserId() {
-       OAuth2User currentUser = getCurrentUser();
-       if (currentUser != null) {
-           return currentUser.getAttribute("appUserId");
-       }
-       return null;
-    }
-
-    public static OAuth2User getCurrentUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof OAuth2User) {
-            return (OAuth2User) principal;
-        }
-        return null;
     }
 }

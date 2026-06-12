@@ -22,7 +22,7 @@ public interface MovieRepository extends JpaRepository<Movie, UUID> {
 
     @Query(value = """
             SELECT
-                SUBSTRING(date_watched, 1, 7) AS yearMonth,
+                TO_CHAR(date_watched, 'YYYY-MM') AS yearMonth,
                 COUNT(CASE WHEN streaming_service = 'Amazon' THEN 1 END) AS countAmazon,
                 COUNT(CASE WHEN streaming_service = 'Netflix' THEN 1 END) AS countNetflix,
                 COUNT(CASE WHEN streaming_service = 'Youtube' THEN 1 END) AS countYoutube,
@@ -31,7 +31,7 @@ public interface MovieRepository extends JpaRepository<Movie, UUID> {
             WHERE date_watched IS NOT NULL
                 AND user_id = :userId
             GROUP BY yearMonth
-            ORDER BY yearMonth DESC;
+            ORDER BY yearMonth DESC
             """,
             nativeQuery = true)
     List<MoviesPerMonthDTO> countMoviesWatchedPerYearMonthNative(@Param("userId") UUID userId);
