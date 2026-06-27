@@ -13,7 +13,7 @@ MovieTracker is a user-friendly application that allows you to:
 - Search for watched movies
 - Update movie details
 - Delete movies from your list
-- Extract streaming URLs (Netflix, Amazon Prime, YouTube)
+- Extract streaming URLs (Netflix, Amazon Prime, YouTube, ARD media library)
 - View movie statistics
 
 ## Technology Stack

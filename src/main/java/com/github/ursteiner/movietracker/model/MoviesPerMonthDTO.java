@@ -12,5 +12,6 @@ public class MoviesPerMonthDTO {
     private long countAmazon;
     private long countNetflix;
     private long countYoutube;
+    private long countArdMediaLibrary;
     private long countTotal;
 }
