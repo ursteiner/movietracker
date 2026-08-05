@@ -15,7 +15,7 @@ import java.util.UUID;
 
 public interface MovieRepository extends JpaRepository<Movie, UUID> {
     Page<Movie> findByUserIdAndDateWatchedIsNotNull(UUID appUserId, Pageable pageable);
-    Page<Movie> findByUserIdAndNameContainingIgnoreCaseAndDateWatchedIsNotNull(UUID appUserId,String searchName, Pageable pageable);
+    Page<Movie> findByUserIdAndNameContainingIgnoreCase(UUID appUserId, String searchName, Pageable pageable);
     Page<Movie> findByUserIdAndDateWatchedIsNull(UUID appUserId, Pageable pageable);
     Optional<Movie> findByIdAndUserId(UUID movieId, UUID userId);
     void deleteByUserId(UUID userId);

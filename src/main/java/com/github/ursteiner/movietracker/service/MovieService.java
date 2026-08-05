@@ -27,10 +27,14 @@ public class MovieService {
         this.streamingUrlService = streamingUrlService;
     }
 
-    public Page<Movie> getWatchedMovies(UUID userId, String searchName, Pageable paging) {
-        Page<Movie> moviePage = (searchName != null)
-                ? movieRepository.findByUserIdAndNameContainingIgnoreCaseAndDateWatchedIsNotNull(userId, searchName, paging)
-                : movieRepository.findByUserIdAndDateWatchedIsNotNull(userId, paging);
+    public Page<Movie> getWatchedMovies(UUID userId, Pageable paging) {
+        Page<Movie> moviePage = movieRepository.findByUserIdAndDateWatchedIsNotNull(userId, paging);
+        fillStreamingUrl(moviePage.getContent());
+        return moviePage;
+    }
+
+    public Page<Movie> getSearchedMovies(UUID userId, String searchName, Pageable paging) {
+        Page<Movie> moviePage = movieRepository.findByUserIdAndNameContainingIgnoreCase(userId, searchName, paging);
         fillStreamingUrl(moviePage.getContent());
         return moviePage;
     }

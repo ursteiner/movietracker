@@ -49,21 +49,39 @@ public class MovieController {
     @GetMapping("/movies")
     public String listMovies(Model model,
                              @RequestParam("page") Optional<Integer> page,
-                             @RequestParam(required = false) String searchName,
                              @RequestParam(defaultValue = "dateWatched") String sortBy,
                              @RequestParam(defaultValue = "desc") String sortOrder) {
 
         Pageable paging = createPageable(page, sortBy, sortOrder);
-        Page<Movie> moviePage = movieService.getWatchedMovies(currentUserProvider.getCurrentUserId(), searchName, paging);
+        Page<Movie> moviePage = movieService.getWatchedMovies(currentUserProvider.getCurrentUserId(), paging);
 
         model.addAttribute("movies", moviePage.getContent());
         model.addAttribute("page", moviePage.getNumber() + 1);
         model.addAttribute("totalMovies", moviePage.getTotalElements());
         model.addAttribute("activePage", "list");
-        model.addAttribute("searchName", searchName);
         addPagingAttributes(model, paging, moviePage.getTotalPages());
 
         return "list-movies";
+    }
+
+    @GetMapping("/search")
+    public String searchMovies(Model model,
+                             @RequestParam("page") Optional<Integer> page,
+                             @RequestParam(required = false) String searchName,
+                             @RequestParam(defaultValue = "dateWatched") String sortBy,
+                             @RequestParam(defaultValue = "desc") String sortOrder) {
+
+        Pageable paging = createPageable(page, sortBy, sortOrder);
+        Page<Movie> moviePage = movieService.getSearchedMovies(currentUserProvider.getCurrentUserId(), searchName, paging);
+
+        model.addAttribute("searchedMovies", moviePage.getContent());
+        model.addAttribute("page", moviePage.getNumber() + 1);
+        model.addAttribute("totalMovies", moviePage.getTotalElements());
+        model.addAttribute("activePage", "search");
+        model.addAttribute("searchName", searchName);
+        addPagingAttributes(model, paging, moviePage.getTotalPages());
+
+        return "list-search-movies";
     }
 
     @GetMapping("/watchlist")
