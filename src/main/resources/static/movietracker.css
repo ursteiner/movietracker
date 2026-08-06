@@ -1,3 +1,7 @@
 .button {
 	width: 110px;
 }
+
+.center {
+	vertical-align: center;
+}

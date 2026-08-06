@@ -24,7 +24,7 @@
             </th>
             <th style="width:120px;">Actions</th>
         </tr>
-        <tr th:each="movie : ${movies}">
+        <tr th:each="movie : ${movies}" class="center">
             <td th:if="${not #strings.isEmpty(movie.movieId)}">
                 <a th:href="${movie.streamingUrl}" th:text="${movie.name}" target="_blank"></a>
             </td>
