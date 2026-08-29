@@ -41,12 +41,13 @@ class CustomOAuth2UserServiceTest {
     void setUp() {
         customOAuth2UserService = new CustomOAuth2UserService(userRepository, delegateService);
 
-        testUser = new AppUser();
-        testUser.setId(UUID.randomUUID());
-        testUser.setGithubId(12345);
-        testUser.setUsername("testuser");
-        testUser.setEmail("test@example.com");
-        testUser.setRegistrationDate(LocalDate.now());
+        testUser = AppUser.builder()
+                .id(UUID.randomUUID())
+                .githubId(12345)
+                .username("testuser")
+                .email("test@example.com")
+                .registrationDate(LocalDate.now())
+                .build();
     }
 
     @Test
@@ -89,12 +90,13 @@ class CustomOAuth2UserServiceTest {
     @Test
     void loadUser_ShouldHandleNullEmail_WhenNotProvidedByProvider() {
         when(userRepository.findUserByGithubId(12345)).thenReturn(null);
-        AppUser userWithoutEmail = new AppUser();
-        userWithoutEmail.setId(UUID.randomUUID());
-        userWithoutEmail.setGithubId(12345);
-        userWithoutEmail.setUsername("userWithoutEmail");
-        userWithoutEmail.setEmail(null);
-        userWithoutEmail.setRegistrationDate(LocalDate.now());
+        AppUser userWithoutEmail = AppUser.builder()
+                .id(UUID.randomUUID())
+                .githubId(12345)
+                .username("userWithoutEmail")
+                .email(null)
+                .registrationDate(LocalDate.now())
+                .build();
 
         when(userRepository.save(any(AppUser.class))).thenReturn(userWithoutEmail);
 
