@@ -57,11 +57,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         AppUser user = userRepository.findUserByGithubId(providerUserId);
 
         if (user == null) {
-            user = new AppUser();
-            user.setGithubId(providerUserId);
-            user.setUsername(userName);
-            user.setEmail(email);
-            user.setRegistrationDate(LocalDate.now());
+            user = AppUser.builder()
+                    .githubId(providerUserId)
+                    .username(userName)
+                    .email(email)
+                    .registrationDate(LocalDate.now())
+                    .build();
         }
 
         user.setLastLogin(LocalDateTime.now());
