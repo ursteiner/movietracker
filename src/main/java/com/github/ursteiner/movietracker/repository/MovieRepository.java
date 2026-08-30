@@ -26,7 +26,7 @@ public interface MovieRepository extends JpaRepository<Movie, UUID> {
                 COUNT(CASE WHEN streaming_service = 'Amazon' THEN 1 END) AS countAmazon,
                 COUNT(CASE WHEN streaming_service = 'Netflix' THEN 1 END) AS countNetflix,
                 COUNT(CASE WHEN streaming_service = 'Youtube' THEN 1 END) AS countYoutube,
-                COUNT(CASE WHEN streaming_service = 'ARD media library' THEN 1 END) AS countArdMediaLibrary,
+                COUNT(CASE WHEN streaming_service = 'ARD' THEN 1 END) AS countArdMediaLibrary,
                 COUNT(*) as countTotal
             FROM movie
             WHERE date_watched IS NOT NULL

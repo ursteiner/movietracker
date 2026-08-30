@@ -13,6 +13,6 @@ public class ArdUrlAnalyzer extends AbstractStreamingUrlAnalyzer{
     private static final String STREAM_BASE_URL = "https://www.ardmediathek.de/video/";
 
     public ArdUrlAnalyzer() {
-        super(ID_PATTERNS, STREAM_BASE_URL, "ARD media library", "ardmediathek.");
+        super(ID_PATTERNS, STREAM_BASE_URL, "ARD", "ardmediathek.");
     }
 }
