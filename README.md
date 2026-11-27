@@ -1,99 +1,73 @@
-# Movietracker 🎬
+# Movietracker
 
-A modern Spring Boot web application to manage and track movies you have watched with GitHub OAuth2 authentication.
+A small web app to keep a list of the movies I have watched and the ones I still want to watch. You log in with your GitHub account, and every user only sees their own movies.
 
 ![MovieList Screenshot](screenshots/MovieList.png)
 
-## Overview
+## What it does
 
-MovieTracker is a user-friendly application that allows you to:
-- Login securely with GitHub OAuth2
-- Add movies to your collection
-- Track movies you have watched
-- Search for watched movies
-- Update movie details
-- Delete movies from your list
-- Extract streaming URLs (Netflix, Amazon Prime, YouTube, ARD media library)
-- View movie statistics
+- Keep a watchlist and a list of watched movies, with the date you watched them
+- Search your watched movies by name
+- Paste a link from Netflix, Amazon, YouTube or the ARD media library. The app remembers the service and the movie id and links back to it.
+- Show how many movies you watched per month, split by service
+- Delete your account together with all your data
 
-## Technology Stack
+## Built with
 
-### Backend
-- **Spring Boot** - Web Framework
-- **Spring Security** - OAuth2 Authentication with GitHub
-- **Spring Data JPA** - ORM and Data Access
-- **Hibernate** - JPA Implementation
-- **H2 Database** - Persistent in-file database
-- **Thymeleaf** - Template Engine
-- **Lombok** - Reduced Boilerplate Code
+Java 21, Spring Boot, Spring Security (GitHub OAuth2 login), Spring Data JPA, Thymeleaf and Bootstrap. Data is stored in an H2 file database by default. PostgreSQL works too, see below.
 
-### Frontend
-- **HTML5** - Markup
-- **Bootstrap** - CSS Framework
-- **Bootstrap Icons** - Icon Library
+## Running it locally
 
-## Getting Started
+You need Java 21 and a GitHub OAuth app:
 
-### Prerequisites
-Create a GitHub OAuth2 Application:
-   - Go to https://github.com/settings/developers
-   - Create a new OAuth App
-   - Set Authorization callback URL to: `http://localhost:8080/login/oauth2/code/github`
-   - Note your Client ID and Client Secret
+1. Go to https://github.com/settings/developers and create a new OAuth app.
+2. Set the callback URL to `http://localhost:8080/login/oauth2/code/github`.
+3. Copy the client id and generate a client secret.
 
-### Installation & Running Locally
+Then start the app with the credentials in the environment:
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd movietracker
-   ```
+```bash
+export GITHUB_CLIENT_ID=your-client-id
+export GITHUB_CLIENT_SECRET=your-client-secret
+./mvnw spring-boot:run
+```
 
-2. **Configure GitHub OAuth2 credentials**
-   Set environment variables:
-   ```bash
-   # Windows
-   set GITHUB_CLIENT_ID="your-client-id"
-   set GITHUB_CLIENT_SECRET="your-client-secret"
-   
-   # Linux/Mac
-   export GITHUB_CLIENT_ID="your-client-id"
-   export GITHUB_CLIENT_SECRET="your-client-secret"
-   ```
-   
-   Or update `application.properties`:
-   ```properties
-   spring.security.oauth2.client.registration.github.clientId=your-client-id
-   spring.security.oauth2.client.registration.github.clientSecret=your-client-secret
-   ```
+On Windows use `set` instead of `export`.
 
-3. **Start the application**
-   ```bash
-   ./mvnw spring-boot:run
-   ```
+Open http://localhost:8080 and log in with GitHub. The database file is created at `~/movietrackerdb.mv.db`.
 
-4. **Access the application**
-   - Open your browser and navigate to: `http://localhost:8080`
-   - Click "Login with GitHub" to authenticate
-   - The H2 database will be created at: `~/movietrackerdb.mv.db`
 
-## Deployment
+## Database
 
-### Docker
+By default the app uses the H2 file above. To use another database, set these properties or the matching environment variables:
 
-#### Build
+| Property | Default |
+|---|---|
+| `db-url` | `jdbc:h2:file:~/movietrackerdb` |
+| `db-username` | empty |
+| `db-password` | empty |
+| `db-driver` | `org.h2.Driver` |
+
+The PostgreSQL driver is already on the classpath. The schema is created and updated by Hibernate (`ddl-auto=update`), there are no migration scripts.
+
+## Docker
+
 ```bash
 ./mvnw clean package
 docker build -t movietracker:latest .
-```
 
-#### Run
-```bash
 docker run --rm -p 8080:8080 \
   -e github-client-id=your-client-id \
   -e github-client-secret=your-client-secret \
   movietracker:latest
 ```
 
-Then access the application at: `http://localhost:8080`
+This stores the H2 file inside the container, so the data is gone when the container is removed. For anything you want to keep, point `db-url` at PostgreSQL or at a mounted volume.
 
+## Tests
+
+```bash
+./mvnw test
+```
+
+The tests use an in-memory database, except `MovietrackerApplicationTests`, which uses the default H2 file. Stop a running instance of the app before you run it, because the file is locked while the app is open.
