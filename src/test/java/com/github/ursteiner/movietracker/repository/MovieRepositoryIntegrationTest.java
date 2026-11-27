@@ -87,6 +87,27 @@ public class MovieRepositoryIntegrationTest {
         assertThat(last.getYearMonth()).isEqualTo("2026-01");
     }
 
+    @Test
+    void testFindByIdAndUserId_ShouldOnlyReturnMovieForItsOwner() {
+        AppUser user2 = userRepository.findUserByGithubId(2L);
+        Movie user2Movie = movieRepository.findByUserIdAndDateWatchedIsNotNull(user2.getId(), paging).getContent().getFirst();
+
+        assertThat(movieRepository.findByIdAndUserId(user2Movie.getId(), user2.getId())).isPresent();
+        assertThat(movieRepository.findByIdAndUserId(user2Movie.getId(), user1.getId())).isEmpty();
+    }
+
+    @Test
+    void testDeleteByUserId_ShouldOnlyDeleteMoviesOfThatUser() {
+        AppUser user2 = userRepository.findUserByGithubId(2L);
+
+        movieRepository.deleteByUserId(user1.getId());
+
+        assertThat(movieRepository.findByUserIdAndDateWatchedIsNotNull(user1.getId(), paging)).isEmpty();
+        assertThat(movieRepository.findByUserIdAndDateWatchedIsNull(user1.getId(), paging)).isEmpty();
+        assertThat(movieRepository.findByUserIdAndDateWatchedIsNotNull(user2.getId(), paging)).hasSize(2);
+        assertThat(movieRepository.findByUserIdAndDateWatchedIsNull(user2.getId(), paging)).hasSize(2);
+    }
+
     private void saveMovie(String name, String watchDate, String streamer, AppUser user) {
         movieRepository.save(
                 Movie.builder()
