@@ -37,6 +37,7 @@ class MovieControllerTest {
         void normalizeSortBy_ShouldKeepAllowedFields() {
             assertThat(MovieController.normalizeSortBy(AllowedSortField.NAME.property())).isEqualTo(AllowedSortField.NAME);
             assertThat(MovieController.normalizeSortBy(AllowedSortField.DATE_WATCHED.property())).isEqualTo(AllowedSortField.DATE_WATCHED);
+            assertThat(MovieController.normalizeSortBy(AllowedSortField.RATING.property())).isEqualTo(AllowedSortField.RATING);
         }
 
         @Test

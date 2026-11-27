@@ -22,15 +22,29 @@
                     <i th:if="${sortBy != 'dateWatched'}" class="bi bi-arrow-down-up"></i>
                 </a>
             </th>
+            <th style="width:120px;">
+                Rating
+                <a th:href="@{${site}(searchName=${searchName},page=${page},sortBy='rating',sortOrder=${sortOrder == 'asc' ? 'desc' : 'asc'})}">
+                    <i th:if="${sortBy == 'rating'}" th:class="${sortOrder == 'asc' ? 'bi bi-sort-numeric-down': 'bi bi-sort-numeric-up-alt'}"></i>
+                    <i th:if="${sortBy != 'rating'}" class="bi bi-arrow-down-up"></i>
+                </a>
+            </th>
             <th style="width:120px;">Actions</th>
         </tr>
         <tr th:each="movie : ${movies}" class="center">
             <td th:if="${not #strings.isEmpty(movie.movieId)}">
                 <a th:href="${movie.streamingUrl}" th:text="${movie.name}" target="_blank"></a>
+                <i th:if="${not #strings.isEmpty(movie.description)}" class="bi bi-info-circle ms-1" th:title="${movie.description}"></i>
             </td>
-            <td th:if="${#strings.isEmpty(movie.movieId)}" th:text="${movie.name}"></td>
+            <td th:if="${#strings.isEmpty(movie.movieId)}">
+                <span th:text="${movie.name}"></span>
+                <i th:if="${not #strings.isEmpty(movie.description)}" class="bi bi-info-circle ms-1" th:title="${movie.description}"></i>
+            </td>
             <td th:text="${movie.streamingService}"></td>
             <td th:if="${showDateWatched}" th:text="${#temporals.format(movie.dateWatched, 'yyyy-MM-dd')}"></td>
+            <td>
+                <span th:if="${movie.rating != null}" th:text="${'★'.repeat(movie.rating) + '☆'.repeat(5 - movie.rating)}"></span>
+            </td>
             <td>
                 <a th:href="@{/edit/{id}(id=${movie.id}, returnUrl=${returnUrl})}" class="btn btn-dark bi bi-pencil"></a>
                 <a th:href="@{/delete/{id}(id=${movie.id}, returnUrl=${returnUrl})}" class="btn btn-dark bi bi-trash"></a>

@@ -17,6 +17,10 @@ import java.util.UUID;
 @Service
 public class MovieService {
 
+    static final int MIN_RATING = 1;
+    static final int MAX_RATING = 5;
+    static final int MAX_DESCRIPTION_LENGTH = 1000;
+
     private final MovieRepository movieRepository;
     private final UserRepository userRepository;
     private final StreamingUrlService streamingUrlService;
@@ -47,6 +51,7 @@ public class MovieService {
 
     public Movie addMovie(UUID userId, Movie movie) {
         movie.setId(null);
+        normalizeReview(movie);
         applyStreamingInfo(movie, movie.getStreamingUrl());
         movie.setUser(userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId)));
@@ -68,6 +73,9 @@ public class MovieService {
         Movie movie = getOwnedMovie(userId, id);
         movie.setName(changes.getName());
         movie.setDateWatched(changes.getDateWatched());
+        movie.setRating(changes.getRating());
+        movie.setDescription(changes.getDescription());
+        normalizeReview(movie);
         applyStreamingInfo(movie, changes.getStreamingUrl());
         return movieRepository.save(movie);
     }
@@ -80,6 +88,19 @@ public class MovieService {
 
     public List<MoviesPerMonthDTO> getMoviesPerMonth(UUID userId) {
         return movieRepository.countMoviesWatchedPerYearMonthNative(userId);
+    }
+
+    /** Rating is only valid between 1 and 5; blank descriptions are stored as null and long descriptions are cut off. */
+    private void normalizeReview(Movie movie) {
+        Integer rating = movie.getRating();
+        movie.setRating(rating == null || rating < MIN_RATING || rating > MAX_RATING ? null : rating);
+        String description = movie.getDescription();
+        if (description == null || description.isBlank()) {
+            movie.setDescription(null);
+        } else {
+            String trimmed = description.strip();
+            movie.setDescription(trimmed.length() > MAX_DESCRIPTION_LENGTH ? trimmed.substring(0, MAX_DESCRIPTION_LENGTH) : trimmed);
+        }
     }
 
     private void applyStreamingInfo(Movie movie, String url) {

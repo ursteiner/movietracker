@@ -10,3 +10,14 @@
     <label for="dateWatchedInput" class="form-label">Date watched:</label>
     <input class="form-control" type="date" id="dateWatchedInput" clearBtn="true" th:field="*{dateWatched}"/>
 </div>
+<div class="mb-3">
+    <label for="ratingInput" class="form-label">Rating:</label>
+    <select class="form-select" id="ratingInput" th:field="*{rating}">
+        <option value="">Not rated</option>
+        <option th:each="r : ${#numbers.sequence(1, 5)}" th:value="${r}" th:text="${'★'.repeat(r) + ' (' + r + ')'}"></option>
+    </select>
+</div>
+<div class="mb-3">
+    <label for="descriptionInput" class="form-label">Description:</label>
+    <textarea class="form-control" id="descriptionInput" rows="3" placeholder="What was this movie about?" maxlength="1000" th:field="*{description}"></textarea>
+</div>

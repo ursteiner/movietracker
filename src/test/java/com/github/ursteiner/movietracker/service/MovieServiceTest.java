@@ -54,6 +54,33 @@ public class MovieServiceTest {
     }
 
     @Test
+    void addMovie_shouldDropInvalidRating_andBlankDescription() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(AppUser.builder().id(userId).build()));
+        when(movieRepository.save(any(Movie.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Movie saved = movieService.addMovie(userId, Movie.builder().name("x").rating(9).description("   ").build());
+
+        assertThat(saved.getRating()).isNull();
+        assertThat(saved.getDescription()).isNull();
+    }
+
+    @Test
+    void updateMovie_shouldStoreRatingAndTrimmedDescription() {
+        UUID userId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
+        Movie existing = Movie.builder().id(id).name("old").build();
+        when(movieRepository.findByIdAndUserId(id, userId)).thenReturn(Optional.of(existing));
+        when(movieRepository.save(any(Movie.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Movie updated = movieService.updateMovie(userId, id,
+                Movie.builder().name("new").rating(4).description("  great  ").build());
+
+        assertThat(updated.getRating()).isEqualTo(4);
+        assertThat(updated.getDescription()).isEqualTo("great");
+    }
+
+    @Test
     void addMovie_shouldThrowException_whenUserIsNotFound() {
         UUID userId = UUID.randomUUID();
         String streamingUrl = "https://testflix.example/movies/12345";

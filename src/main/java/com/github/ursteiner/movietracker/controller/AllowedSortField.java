@@ -5,7 +5,8 @@ import java.util.Arrays;
 public enum AllowedSortField {
     NAME("name"),
     DATE_WATCHED("dateWatched"),
-    STREAMING_SERVICE("streamingService");
+    STREAMING_SERVICE("streamingService"),
+    RATING("rating");
 
     private final String name;
 

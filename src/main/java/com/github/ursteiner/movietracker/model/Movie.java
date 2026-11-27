@@ -26,6 +26,10 @@ public class Movie {
     private String streamingUrl;
     private String streamingService;
     private String movieId;
+    /** Personal rating from 1 to 5, null if not rated. */
+    private Integer rating;
+    @Column(length = 1000)
+    private String description;
     @ManyToOne
     @JoinColumn(name = "user_id")  // Foreign key in 'movie' table
     private AppUser user;
