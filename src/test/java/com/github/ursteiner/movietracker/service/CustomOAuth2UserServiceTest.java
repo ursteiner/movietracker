@@ -43,7 +43,7 @@ class CustomOAuth2UserServiceTest {
 
         testUser = AppUser.builder()
                 .id(UUID.randomUUID())
-                .githubId(12345)
+                .githubId(12345L)
                 .username("testuser")
                 .email("test@example.com")
                 .registrationDate(LocalDate.now())
@@ -52,14 +52,14 @@ class CustomOAuth2UserServiceTest {
 
     @Test
     void loadUser_ShouldReturnOAuth2User_WhenUserAlreadyExists() {
-        when(userRepository.findUserByGithubId(12345)).thenReturn(testUser);
+        when(userRepository.findUserByGithubId(12345L)).thenReturn(testUser);
         when(userRepository.save(any(AppUser.class))).thenReturn(testUser);
-        OAuth2User oAuth2User = createMockOAuth2User(12345, "testuser", "test@example.com");
+        OAuth2User oAuth2User = createMockOAuth2User(12345L, "testuser", "test@example.com");
         when(delegateService.loadUser(userRequest)).thenReturn(oAuth2User);
 
         OAuth2User result = customOAuth2UserService.loadUser(userRequest);
 
-        verify(userRepository).findUserByGithubId(12345);
+        verify(userRepository).findUserByGithubId(12345L);
         verify(userRepository, times(1)).save(any());
         assertThat(result).isNotNull();
         assertThat((UUID) result.getAttribute("appUserId")).isEqualTo(testUser.getId());
@@ -67,10 +67,10 @@ class CustomOAuth2UserServiceTest {
 
     @Test
     void loadUser_ShouldCreateAndSaveNewUser_WhenUserDoesNotExist() {
-        when(userRepository.findUserByGithubId(12345)).thenReturn(null);
+        when(userRepository.findUserByGithubId(12345L)).thenReturn(null);
         when(userRepository.save(any(AppUser.class))).thenReturn(testUser);
 
-        OAuth2User oAuth2User = createMockOAuth2User(12345, "testuser", "test@example.com");
+        OAuth2User oAuth2User = createMockOAuth2User(12345L, "testuser", "test@example.com");
         when(delegateService.loadUser(userRequest)).thenReturn(oAuth2User);
 
         OAuth2User result = customOAuth2UserService.loadUser(userRequest);
@@ -79,7 +79,7 @@ class CustomOAuth2UserServiceTest {
         verify(userRepository).save(userCaptor.capture());
 
         AppUser savedUser = userCaptor.getValue();
-        assertThat(savedUser.getGithubId()).isEqualTo(12345);
+        assertThat(savedUser.getGithubId()).isEqualTo(12345L);
         assertThat(savedUser.getUsername()).isEqualTo("testuser");
         assertThat(savedUser.getEmail()).isEqualTo("test@example.com");
         assertThat(savedUser.getRegistrationDate()).isNotNull();
@@ -89,10 +89,10 @@ class CustomOAuth2UserServiceTest {
 
     @Test
     void loadUser_ShouldHandleNullEmail_WhenNotProvidedByProvider() {
-        when(userRepository.findUserByGithubId(12345)).thenReturn(null);
+        when(userRepository.findUserByGithubId(12345L)).thenReturn(null);
         AppUser userWithoutEmail = AppUser.builder()
                 .id(UUID.randomUUID())
-                .githubId(12345)
+                .githubId(12345L)
                 .username("userWithoutEmail")
                 .email(null)
                 .registrationDate(LocalDate.now())
@@ -100,7 +100,7 @@ class CustomOAuth2UserServiceTest {
 
         when(userRepository.save(any(AppUser.class))).thenReturn(userWithoutEmail);
 
-        OAuth2User oAuth2User = createMockOAuth2User(12345, "userWithoutEmail", null);
+        OAuth2User oAuth2User = createMockOAuth2User(12345L, "userWithoutEmail", null);
         when(delegateService.loadUser(userRequest)).thenReturn(oAuth2User);
 
         OAuth2User result = customOAuth2UserService.loadUser(userRequest);
@@ -114,21 +114,39 @@ class CustomOAuth2UserServiceTest {
     }
 
     @Test
-    void loadUser_ShouldNotCreateDuplicate_OnMultipleLogins() {
-        when(userRepository.findUserByGithubId(1234)).thenReturn(testUser);
+    void loadUser_ShouldHandleIntegerAndLongIdAttributes() {
+        when(userRepository.findUserByGithubId(12345L)).thenReturn(testUser);
+        when(userRepository.findUserByGithubId(5_000_000_000L)).thenReturn(testUser);
         when(userRepository.save(any(AppUser.class))).thenReturn(testUser);
 
-        OAuth2User oAuth2User = createMockOAuth2User(1234, "test", "test@example.com");
+        // Jackson yields Integer for small ids and Long for ids above Integer.MAX_VALUE
+        when(delegateService.loadUser(userRequest))
+                .thenReturn(createMockOAuth2User(12345, "test", "test@example.com"))
+                .thenReturn(createMockOAuth2User(5_000_000_000L, "test", "test@example.com"));
+
+        assertThat(customOAuth2UserService.loadUser(userRequest)).isNotNull();
+        assertThat(customOAuth2UserService.loadUser(userRequest)).isNotNull();
+
+        verify(userRepository).findUserByGithubId(12345L);
+        verify(userRepository).findUserByGithubId(5_000_000_000L);
+    }
+
+    @Test
+    void loadUser_ShouldNotCreateDuplicate_OnMultipleLogins() {
+        when(userRepository.findUserByGithubId(1234L)).thenReturn(testUser);
+        when(userRepository.save(any(AppUser.class))).thenReturn(testUser);
+
+        OAuth2User oAuth2User = createMockOAuth2User(1234L, "test", "test@example.com");
         when(delegateService.loadUser(userRequest)).thenReturn(oAuth2User);
 
         customOAuth2UserService.loadUser(userRequest);
         customOAuth2UserService.loadUser(userRequest);
         customOAuth2UserService.loadUser(userRequest);
 
-        verify(userRepository, times(3)).findUserByGithubId(1234);
+        verify(userRepository, times(3)).findUserByGithubId(1234L);
     }
 
-    private OAuth2User createMockOAuth2User(Integer id, String login, String email) {
+    private OAuth2User createMockOAuth2User(Number id, String login, String email) {
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("id", id);
         attributes.put("login", login);

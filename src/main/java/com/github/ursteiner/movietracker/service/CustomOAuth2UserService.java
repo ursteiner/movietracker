@@ -36,12 +36,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
-
-        Integer providerUserId = oAuth2User.getAttribute("id");
+        
+        Number providerUserId = oAuth2User.getAttribute("id");
         String userName = oAuth2User.getAttribute("login");
         String email = oAuth2User.getAttribute("email");
 
-        AppUser appUser = createOrGetUser(providerUserId, email, userName);
+        AppUser appUser = createOrGetUser(providerUserId.longValue(), email, userName);
 
         Map<String, Object> attributes = new HashMap<>(oAuth2User.getAttributes());
         attributes.put("appUserId", appUser.getId());
@@ -53,7 +53,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         );
     }
 
-    private AppUser createOrGetUser(Integer providerUserId, String email, String userName) {
+    private AppUser createOrGetUser(long providerUserId, String email, String userName) {
         AppUser user = userRepository.findUserByGithubId(providerUserId);
 
         if (user == null) {

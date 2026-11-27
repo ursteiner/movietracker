@@ -21,7 +21,7 @@ public class AppUser {
     @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
     @Column(nullable = false, unique = true)
-    private Integer githubId;
+    private Long githubId;
     private String username;
     private String email;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
