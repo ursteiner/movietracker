@@ -46,6 +46,7 @@ public class MovieService {
     }
 
     public Movie addMovie(UUID userId, Movie movie) {
+        movie.setId(null);
         applyStreamingInfo(movie, movie.getStreamingUrl());
         movie.setUser(userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId)));

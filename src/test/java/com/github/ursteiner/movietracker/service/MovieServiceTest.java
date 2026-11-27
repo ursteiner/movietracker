@@ -39,6 +39,21 @@ public class MovieServiceTest {
     private MovieService movieService;
 
     @Test
+    void addMovie_shouldIgnoreProvidedId_andAssignCurrentUser() {
+        UUID userId = UUID.randomUUID();
+        AppUser user = AppUser.builder().id(userId).build();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(movieRepository.save(any(Movie.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Movie movie = Movie.builder().id(UUID.randomUUID()).name("Injected").build();
+
+        Movie saved = movieService.addMovie(userId, movie);
+
+        assertThat(saved.getId()).isNull();
+        assertThat(saved.getUser()).isSameAs(user);
+    }
+
+    @Test
     void addMovie_shouldThrowException_whenUserIsNotFound() {
         UUID userId = UUID.randomUUID();
         String streamingUrl = "https://testflix.example/movies/12345";
