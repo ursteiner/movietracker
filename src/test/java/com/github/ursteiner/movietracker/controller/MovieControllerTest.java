@@ -2,6 +2,9 @@ package com.github.ursteiner.movietracker.controller;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.data.domain.Sort.Direction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,5 +48,21 @@ class MovieControllerTest {
             assertThat(MovieController.normalizeSortOrder(null)).isEqualTo(Direction.DESC);
         }
     }
-}
 
+    @Nested
+    class SanitizeReturnUrl {
+        @ParameterizedTest
+        @ValueSource(strings = {"/movies", "/watchlist", "/movies?page=2&sortBy=name&sortOrder=asc", "/search?searchName=a%20b"})
+        void sanitizeReturnUrl_ShouldKeepLocalPaths(String url) {
+            assertThat(MovieController.sanitizeReturnUrl(url)).isEqualTo(url);
+        }
+
+        @ParameterizedTest
+        @NullSource
+        @ValueSource(strings = {"", "javascript:alert(1)", "JavaScript:alert(1)", "data:text/html,x", "https://evil.example",
+                "http://evil.example/movies", "//evil.example", "/\\evil.example", "/\t/evil.example", "/\n/evil.example", "movies"})
+        void sanitizeReturnUrl_ShouldRejectEverythingElse(String url) {
+            assertThat(MovieController.sanitizeReturnUrl(url)).isNull();
+        }
+    }
+}

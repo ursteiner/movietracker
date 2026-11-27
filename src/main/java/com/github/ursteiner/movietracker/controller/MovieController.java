@@ -117,7 +117,7 @@ public class MovieController {
     public String showUpdateForm(@PathVariable("id") UUID id, @RequestParam(required = false) String returnUrl, Model model) {
         Movie movie = movieService.getMovieForEdit(currentUserProvider.getCurrentUserId(), id);
         model.addAttribute("movie", movie);
-        model.addAttribute("returnUrl", returnUrl);
+        model.addAttribute("returnUrl", sanitizeReturnUrl(returnUrl));
         return "update-movie";
     }
 
@@ -131,7 +131,7 @@ public class MovieController {
     public String showDeleteForm(@PathVariable("id") UUID id, @RequestParam(required = false) String returnUrl, Model model) {
         Movie movie = movieService.getOwnedMovie(currentUserProvider.getCurrentUserId(), id);
         model.addAttribute("movie", movie);
-        model.addAttribute("returnUrl", returnUrl);
+        model.addAttribute("returnUrl", sanitizeReturnUrl(returnUrl));
         return "delete-movie";
     }
 
@@ -168,6 +168,19 @@ public class MovieController {
 
     private String getListRedirectUrl(Movie movie) {
         return movie.isInWatchlist() ? "redirect:/watchlist" : "redirect:/movies";
+    }
+
+    /**
+     * Only local paths are allowed as return target. Anything else (javascript:, absolute or
+     * protocol-relative URLs) would be rendered into an href and enable XSS or open redirects.
+     */
+    static String sanitizeReturnUrl(String returnUrl) {
+        if (returnUrl == null || !returnUrl.startsWith("/") || returnUrl.startsWith("//")) {
+            return null;
+        }
+        // Browsers drop tabs/newlines and treat "\" like "/", so "/\t/evil.com" or "/\\evil.com" would leave the site
+        boolean suspicious = returnUrl.chars().anyMatch(c -> c == '\\' || Character.isISOControl(c));
+        return suspicious ? null : returnUrl;
     }
 
     static int normalizePageNumber(int page) {
